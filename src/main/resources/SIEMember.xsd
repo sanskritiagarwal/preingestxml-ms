@@ -127,13 +127,13 @@
 				<xs:element name="MIndPlanMaxList" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="IndPlanMaxOpt" type="ns1:CHARYESNO"/>
+							<xs:element name="IndPlanMaxOpt" type="xs:boolean"/>
 							<!-- BenefitScheduleType can be D -->
 							<xs:element name="IIndPlanMaxAmts" maxOccurs="1">
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -148,7 +148,7 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -163,7 +163,7 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -345,13 +345,13 @@
 				<xs:element name="DIndPlanMaxList" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="IndPlanMaxOpt" type="ns1:CHARYESNO"/>
+							<xs:element name="IndPlanMaxOpt" type="xs:boolean"/>
 							<!-- BenefitScheduleType can be D -->
 							<xs:element name="IIndPlanMaxAmts" maxOccurs="1">
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -366,7 +366,7 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -381,7 +381,7 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -563,13 +563,13 @@
 				<xs:element name="VIndPlanMaxList" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="IndPlanMaxOpt" type="ns1:CHARYESNO"/>
+							<xs:element name="IndPlanMaxOpt" type="xs:boolean"/>
 							<!-- BenefitScheduleType can be D -->
 							<xs:element name="IIndPlanMaxAmts" maxOccurs="1">
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -584,7 +584,7 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -599,7 +599,7 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -781,13 +781,13 @@
 				<xs:element name="PIndPlanMaxList" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="IndPlanMaxOpt" type="ns1:CHARYESNO"/>
+							<xs:element name="IndPlanMaxOpt" type="xs:boolean"/>
 							<!-- BenefitScheduleType can be D -->
 							<xs:element name="IIndPlanMaxAmts" maxOccurs="1">
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -802,7 +802,7 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>
@@ -817,7 +817,7 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="BenefitScheduleType" type="xs:string"/>
-										<xs:element name="CoInsurancePercent" type="ns1:PERCENT"/>
+										<xs:element name="CoInsurancePercent" type="xs:integer"/>
 										<xs:element name="DedIndividualAmount" type="xs:decimal"/>
 										<xs:element name="DedFamilyAmount" type="xs:decimal"/>
 										<xs:element name="IndvOutOfPocketAmount" type="xs:decimal"/>

@@ -16,7 +16,7 @@ public class XsdValidationUtil {
 
 	public static void main(String args[]) {
 		
-		String xml="E:\\NewWorkspace\\preingestxml-ms\\src\\main\\resources\\20180717120822111testmembersieimportexport.xml";
+		String xml="E:\\NewWorkspace\\preingestxml-ms\\XmlMergeResult.xml";
 		String xsd="E:\\NewWorkspace\\preingestxml-ms\\src\\main\\resources\\SIEMember.xsd";
 		
 		if(validateXMLSchema(xsd,xml))
@@ -43,6 +43,7 @@ public class XsdValidationUtil {
 	         return false;
 	      }catch(SAXException e1){
 	         System.out.println("SAX Exception: "+e1.getMessage());
+	         e1.printStackTrace();
 	         return false;
 	      }
 			
