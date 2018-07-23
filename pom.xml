@@ -51,6 +51,12 @@
 			<version>5.2.0</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.wiztools/xsd-gen -->
+		<dependency>
+			<groupId>org.wiztools</groupId>
+			<artifactId>xsd-gen</artifactId>
+			<version>0.2.1</version>
+		</dependency>
 
 
 
