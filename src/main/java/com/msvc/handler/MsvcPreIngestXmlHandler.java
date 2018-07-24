@@ -16,9 +16,40 @@
 
 package com.msvc.handler;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Scanner;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.wiztools.xsdgen.ParseException;
+import org.wiztools.xsdgen.XsdGen;
+import org.xml.sax.InputSource;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -30,12 +61,17 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.msvc.dal.dao.PreIngestXmlDao;
 import com.msvc.dal.dao.PreIngestXmlDaoImpl;
 import com.msvc.dal.model.Attributes;
+import com.msvc.dal.model.Data;
 import com.msvc.dal.model.EmployeeRecord;
+import com.msvc.dal.model.IngestXactionEvent;
+import com.msvc.dal.model.IngestionEvent;
+import com.msvc.dal.model.IngestionTemplate;
 import com.msvc.dal.model.XmlIngestionTemplate;
 import com.msvc.exception.PreIngestXmlException;
 import com.msvc.sns.message.MessageEvent;
 import com.msvc.sns.message.SNSMessage;
 import com.msvc.util.PreIngestXmlUtil;
+import com.msvc.util.XsdValidationUtil;
 import com.msvc.vo.Constant;
 
 /**
@@ -46,6 +82,8 @@ import com.msvc.vo.Constant;
  *
  */
 public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> {
+
+	private static final boolean IS_TRANSACTION_VALIDATION_REQUIRED = false;
 
 	private AmazonS3 s3 = AmazonS3ClientBuilder.standard().build();
 
@@ -73,20 +111,344 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 			MessageEvent messageEvent = this.getMessageEvent(bucketName, bucketKey);
 
-			PreIngestXmlUtil.addObjectValidationAttribs(response.getObjectContent(), messageEvent);
-			
-			XmlIngestionTemplate template = preIngestXmlDao.loadTemplate();
+			byte[] bytes = IOUtils.toByteArray(response.getObjectContent());
 
-			List<EmployeeRecord> attrs = template.getEmployeeRecord();
+			// context.getLogger().log(" Bucket content: "+Arrays.toString(bytes));
+
+			 PreIngestXmlUtil.addObjectValidationAttribs(response.getObjectContent(), messageEvent);
+
+			IngestionTemplate template = preIngestXmlDao.loadTemplate();
+			// context.getLogger().log("Reached 0");
+			// List<EmployeeRecord> attrs = template.getEmployeeRecord();
+			List<Attributes> attrs = template.getAttributes();
+			String xsdString =  attrs.get(0).getFieldName();
+			
+			context.getLogger().log("XSD: "+xsdString);
+			
+			int extractedTransactionCount = 0;
 
 			
 			
+			context.getLogger().log("publish event type INGEST_OBJECT_EVENT");
+			
+			StringBuffer xmlFile=new StringBuffer("");
+			
+			//FileWriter fw = new FileWriter(xmlFile);
+			List<Map<String, String>> transactionList = new ArrayList<Map<String, String>>();
+			try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes))
+			{
+				Scanner sc = new Scanner(bis);
+				
+				while (sc.hasNext()) {
+					String transaction = sc.nextLine();
+					xmlFile.append(transaction);
+					//context.getLogger().log("Next Line: " + transaction);
+					extractedTransactionCount++;
+					//extractTransaction(messageEvent, template, transaction, ingestionEvent,
+					// transactionList,extractedTransactionCount);
+				}
+			}
+			
+			int chunkSize = Constant.MIN_TRANSACTION_CHUNK_SIZE;
+
+			String xsdStr =XsdValidationUtil.getXSDString();
+			
+			// XSD XML Validation
+			if (XsdValidationUtil.validateXMLSchema(xsdString, xmlFile.toString())) 
+			{
+				context.getLogger().log(Constant.XML_VALID_SUCESS_MESSAGE);
+				
+				transactionList = getXmlData(xmlFile.toString(),chunkSize);
+				
+				messageEvent.setTransactionList(getXmlData(xmlFile.toString(),chunkSize));
+				
+			}
+			
+			
+			messageEvent.setNoOfLines(extractedTransactionCount);
+			
+			IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
+			
+			boolean isValidChecksum = validateChecksum(messageEvent, context);
+			
+		
+			context.getLogger().log("[Sanskriti] before return");
+			publishIngestObjectEvent(messageEvent);
+			
+			context.getLogger().log("[Sanskriti] after publish");
+
 			return messageEvent.getEventMessage();
 
 		} catch (Exception e) {
 
 			throw new PreIngestXmlException(Constant.OBJECT_PROCESS_ERROR_MESSAGE);
 		}
+	}
+
+private static List<Map<String,String>> getXmlData(String xmlFile,int chunkSize) {
+		
+		List<Map<String,String>> records = new ArrayList<Map<String,String>>();
+		Map<String,String> employeeRecordMap= new HashMap<String,String>();
+		
+		Document xmldoc = PreIngestXmlUtil.convertStringToDocument(xmlFile.toString());
+		
+		NodeList nodeList = xmldoc.getDocumentElement().getChildNodes();
+		
+		String key="";
+		String value="";
+		
+		Node employeeRecord=null;
+		
+		for (int temp = 0; temp < nodeList.getLength(); temp++) {
+
+			Node nNode = nodeList.item(temp);
+					
+			System.out.println("Current Element :" + nNode.getNodeName());
+			
+			//EmployeeRecordList
+			if (nNode.getNodeType() == Node.ELEMENT_NODE && nNode.getNodeName().equalsIgnoreCase("EmployeeRecordsList")) 
+			{
+				System.out.println("In EmployeeRecordList::"+nNode.getNodeName());
+				
+				NodeList employeeRecords = nNode.getChildNodes();
+				
+				if(employeeRecords.getLength()<=chunkSize)
+				{
+					for(int t=0;t<chunkSize;t++)
+					{
+						System.out.println("employeeRecords.getLength():"+employeeRecords.getLength());
+						for(int i=0;i<employeeRecords.getLength();i++)
+						{
+							employeeRecord = employeeRecords.item(t);
+							
+							if(employeeRecord.getNodeType()==Node.ELEMENT_NODE) 
+							{
+								System.out.println("In employeeRecordEleList item ::"+employeeRecord.getNodeName());
+								
+								Element employeeRecordEle = (Element) employeeRecord;
+								NodeList employeeRecordEleList = employeeRecordEle.getChildNodes();
+	
+								
+								for (int j = 0; j < employeeRecordEleList.getLength(); j++) 
+								{
+						            Node node = employeeRecordEleList.item(j);
+						            System.out.println("In employeeRecordEleList item ::"+node.getNodeName());
+									
+						            if(node.getNodeType()==Node.ELEMENT_NODE) 
+									{
+							            Element nodeEle = (Element) node;
+							            System.out.println("In EmployeeRecordList attrib ::"+nodeEle.getNodeName());
+										
+							            if(node.getNodeName().equals("CMS111"))
+							            {
+							            	List<Map<String,String>> cms111 = new ArrayList<Map<String,String>>();
+							            	
+							            }
+							            System.out.println("attrib key::"+nodeEle.getNodeName());
+							            System.out.println("attrib value::"+nodeEle.getTextContent().trim());
+										
+							            employeeRecordMap.put(node.getNodeName(), nodeEle.getTextContent().trim());
+									}
+						        }
+	
+							}
+						}
+						records.add(employeeRecordMap);
+					}
+					
+				}	
+					
+				}
+			}
+		
+		return records;
+	}
+
+	/**
+	 * publishIngestObjectEvent
+	 * 
+	 * @param messageEvent
+	 */
+	private void publishIngestObjectEvent(MessageEvent messageEvent) {
+		messageEvent.setEventMessage(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
+		messageEvent.setTemplate(Constant.TEMPLATE);
+		messageEvent.setEventType(Constant.EventType.INGEST_OBJECT_EVENT.getEvent());
+		publishMessage(messageEvent);
+	}
+
+	/**
+	 * retreiveSaveIngestEvent method will return ingestionEvent with generated uuid
+	 * 
+	 * @param messageEvent
+	 * @return
+	 */
+	private IngestionEvent saveIngestObjectEventData(MessageEvent messageEvent) {
+		System.out.println("Start retreiveSaveIngestEvent");
+		IngestionEvent ingestionEvent = new IngestionEvent();
+		ingestionEvent.setBucketName(messageEvent.getBucketName());
+		ingestionEvent.setChecksum(messageEvent.getChecksum());
+		ingestionEvent.setBucketKey(messageEvent.getBucketKey());
+		ingestionEvent.setTemplateName(messageEvent.getTemplate());
+		ingestionEvent.setTotalNbrTransactions(Constant.TRANSACTION_CHUNK_SIZE);
+		ingestionEvent.setTotalNbrRecords(messageEvent.getNoOfLines());
+		ingestionEvent.setIngestionTimestamp((Instant.now().toEpochMilli()));
+		if (Objects.nonNull(messageEvent.getExceptionCode())) {
+			ingestionEvent.setExceptionCode(messageEvent.getExceptionCode());
+			ingestionEvent.setExceptionDescription(messageEvent.getExceptionDescription());
+		}
+
+		System.out.println("prepare ingestionEvent to insert into db:" + ingestionEvent);
+		preIngestXmlDao.persistData(ingestionEvent);
+		System.out.println("Data persited into INGEST_OBJECT_EVENT successfully.");
+		System.out.println("End retreiveSaveIngestEvent");
+		return ingestionEvent;
+	}
+
+	/**
+	 * 
+	 * @param messageEvent
+	 * @param template
+	 * @param transaction
+	 * @param ingestionEvent
+	 * @param transactionList
+	 * @param extractedTransactionCount
+	 */
+	public void extractTransaction(MessageEvent messageEvent, IngestionTemplate template, String transaction,
+			IngestionEvent ingestionEvent, List<Map<String, String>> transactionList, int extractedTransactionCount) {
+		System.out.println("Start extractTransaction with messageEvent =" + messageEvent);
+		System.out.println("ingestionEvent     =" + ingestionEvent);
+		
+		Map<String, String> transactionMap = new HashMap<String, String>();
+		
+		// By default it will be chunk size , ex: if file size is 8 and chink size is 5 then noOfRecords will have 5 and 3 value only 
+		int noOfRecords = 0;
+		
+		int remainingChunkSize = messageEvent.getNoOfLines() - extractedTransactionCount;
+		System.out.println("remainingChunkSize:"+remainingChunkSize);		
+	
+		setExtractedTransactionData(messageEvent, template, transaction, transactionList, transactionMap);
+				
+		if (transactionList.size() == Constant.TRANSACTION_CHUNK_SIZE || remainingChunkSize == 0) {
+			System.out.println("chunk size:"+transactionList.size());
+			try {
+				
+				noOfRecords = transactionList.size();
+				
+				// Get transactionEventUuid which will be use to update transactionEvent data later  
+				String transactionEventUuid = saveTransactionEvent(messageEvent, ingestionEvent, noOfRecords);
+				
+				messageEvent.setTransactionEventUuid(transactionEventUuid);
+				
+				// publish TranactionEvent into topic
+				publishIngestTransactionEvent(messageEvent, ingestionEvent);
+
+				System.out.println("publish messageEvent"+messageEvent);
+				
+				// clear transaction list as this list filled based on chunk size
+				transactionList.clear();
+				
+				System.out.println("transaction list size clear : "+transactionList.size());
+			} catch (Exception e) {
+			
+				System.err.println("Error while publishIngestTransactionEvent message");
+				e.printStackTrace();
+			}
+		} 
+
+	}
+
+	/**
+	 * @param messageEvent
+	 * @param template
+	 * @param transaction
+	 * @param transactionList
+	 * @param transactionMap
+	 */
+	private void setExtractedTransactionData(MessageEvent messageEvent, IngestionTemplate template, String transaction,
+			List<Map<String, String>> transactionList, Map<String, String> transactionMap) {
+		System.out.println("Start setExtractedTransactionData ");
+		for (Attributes attr : template.getAttributes()) {
+
+			// System.out.println("value extracted for start: "+
+			// attr.getStartPosition().intValue() + ", end : "+
+			// attr.getEndPosition().intValue());
+			String val = transaction.substring(attr.getStartPosition().intValue() - 1,
+					attr.getEndPosition().intValue() - 1);
+			val = val.trim();
+			if (val.isEmpty()) {
+				// System.out.println(attr.getFieldName() + " is empty.");
+				continue;
+			}
+
+			transactionMap.put(attr.getMasterAttr(), val);
+
+		}
+		
+		System.out.println("transactionList size ::" + transactionList.size());
+		if (transactionList.size() < Constant.TRANSACTION_CHUNK_SIZE) {
+			transactionList.add(transactionMap);
+		}
+
+		messageEvent.setTransactionList(transactionList);
+		System.out.println("End setExtractedTransactionData ");
+	}
+
+	/**
+	 * @param messageEvent
+	 * @param ingEvent
+	 */
+	private void publishIngestTransactionEvent(MessageEvent messageEvent, IngestionEvent ingEvent) {
+		messageEvent.setEventType(Constant.EventType.INGEST_XACTION_EVENT.getEvent());
+		messageEvent.setIngestEventUuid(ingEvent.getEventUuid());
+		messageEvent.setIngestionTimestamp(ingEvent.getIngestionTimestamp());
+		publishMessage(messageEvent);
+	}
+
+	/**
+	 * saveTransactionEvent
+	 * 
+	 * @param messageEvent
+	 * @param ingEvent
+	 * @param noOfRecords
+	 */
+	private String saveTransactionEvent(MessageEvent messageEvent, IngestionEvent ingEvent, int noOfRecords) {
+		System.out.println("Start saveTransactionEvent");
+
+		final IngestXactionEvent transactionEvent = setIngestTransactionData(messageEvent, ingEvent, noOfRecords);
+
+		System.out.println("prepare transactionEvent to insert into db:" + transactionEvent);
+
+		preIngestXmlDao.persistTransactionData(transactionEvent);
+
+		System.out.println("End saveTransactionEvent");
+		return transactionEvent.getEventUuid();
+	}
+
+	/**
+	 * @param messageEvent
+	 * @param ingEvent
+	 * @param noOfRecords
+	 * @return
+	 */
+	private IngestXactionEvent setIngestTransactionData(MessageEvent messageEvent, IngestionEvent ingEvent,
+			int noOfRecords) {
+		IngestXactionEvent transactionEvent = new IngestXactionEvent();
+		transactionEvent.setIngestionTimestamp(ingEvent.getIngestionTimestamp());
+		transactionEvent.setIngestObjectEventUuid(ingEvent.getEventUuid());
+		transactionEvent.setTemplateName(messageEvent.getTemplate());
+
+		List<Map<String, String>> transactionList = messageEvent.getTransactionList();
+		List<Data> transactionDatList = new ArrayList<>();
+
+		for (Map<String, String> transactionData : transactionList) {
+			Data data = new Data();
+			data.setTransactiondata(transactionData);
+			transactionDatList.add(data);
+		}
+
+		transactionEvent.setRecord(transactionDatList);
+		transactionEvent.setNbrRecords(noOfRecords);
+		return transactionEvent;
 	}
 
 	/**
@@ -110,7 +472,7 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 	 */
 	private void publishMessage(MessageEvent messageEvent) {
 		SNSMessage message = new SNSMessage();
-		message.publishMessage(messageEvent);
+		message.publishMessage(messageEvent, IS_TRANSACTION_VALIDATION_REQUIRED);
 	}
 
 	/**
@@ -122,7 +484,7 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 		SNSMessage message = new SNSMessage();
 		message.publishException(messageEvent);
 	}
-	
+
 	/**
 	 * validate no of lines as template max records
 	 * 
@@ -137,7 +499,7 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 		}
 		return result;
 	}
-	
+
 	/**
 	 * validate object size as per template
 	 * 
@@ -146,19 +508,19 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 	 */
 	private boolean validateObjectSize(MessageEvent messageEvent, long templateObjectSize, Context context) {
 		boolean result = true;
-		 if (messageEvent.getObjectSize() != templateObjectSize) {
-				context.getLogger().log(Constant.INVALID_OBJECT_DUE_TO_INVALID_OBJECT_SIZE);
-				result = false;
-			}
-		 return result;
+		if (messageEvent.getObjectSize() != templateObjectSize) {
+			context.getLogger().log(Constant.INVALID_OBJECT_DUE_TO_INVALID_OBJECT_SIZE);
+			result = false;
+		}
+		return result;
 	}
-	
+
 	/**
 	 * validate Checksum if it is duplicate
 	 * 
 	 * @param checksum
 	 */
-	private boolean validateChecksum(MessageEvent messageEvent,  Context context) {
+	private boolean validateChecksum(MessageEvent messageEvent, Context context) {
 		boolean result = true;
 		if (preIngestXmlDao.isDuplicateChecksum(messageEvent.getChecksum())) {
 			context.getLogger().log(Constant.INVALID_OBJECT_DUE_TO_DUPLICATE_CHECKSUM);
@@ -166,9 +528,7 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 			publishExceptionMessage(messageEvent);
 			result = false;
 		}
-		 return result;
+		return result;
 	}
-	
-	
 
 }

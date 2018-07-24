@@ -16,12 +16,24 @@
 
 package com.msvc.util;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+import org.json.XML;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -119,4 +131,47 @@ public class PreIngestXmlUtil {
 		return jsonString;
 	}
 
+	public static String convertXmltoJSON(String xml)
+	{
+		JSONObject jsonObject = XML.toJSONObject(xml);
+
+	
+		InputStream inputStream = null;
+		
+		            BufferedReader bufferedReader = null;
+					try {
+						bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+					} catch (UnsupportedEncodingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+		            StringBuilder responseStrBuilder = new StringBuilder();
+
+		            String inputStr;
+		            try {
+						while ((inputStr = bufferedReader.readLine()) != null) {
+						    responseStrBuilder.append(inputStr);
+						}
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+		            jsonObject = XML.toJSONObject(responseStrBuilder.toString());
+		       
+		return jsonObject.toString();
+	}
+	public static Document convertStringToDocument(String xmlStr) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
+        DocumentBuilder builder;  
+        try  
+        {  
+            builder = factory.newDocumentBuilder();  
+            Document doc = builder.parse( new InputSource( new StringReader( xmlStr ) ) ); 
+            return doc;
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        } 
+        return null;
+    }
 }
