@@ -60,6 +60,18 @@ public class XmlIngestionTemplate {
 	public void setEmployeeRecord(List<EmployeeRecord> employeeRecord) {
 		this.employeeRecord = employeeRecord;
 	}
+
+	public List<Attributes> getAttributes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Integer getMaxRecords() {
+		if(employeeRecord!=null)
+			return employeeRecord.size();
+		else
+			return 0;
+	}
 	
 	
 }

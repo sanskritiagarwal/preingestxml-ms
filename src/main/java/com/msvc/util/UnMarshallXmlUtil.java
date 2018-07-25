@@ -12,7 +12,7 @@ public class UnMarshallXmlUtil {
 
 	public static void main(String[] args) {
 		
-		String xmlFile="E:\\NewWorkspace\\preingestxml-ms\\src\\main\\resources\\Student.xml";
+		String xmlFile="E:\\NewWorkspace\\preingestxml-ms\\src\\main\\resources\\XmlMergeResult.xml";
 		Catalog catalog = JAXB.unmarshal(new File(xmlFile),  Catalog.class);
 		ObjectMapper mapper = new ObjectMapper();
 		try {

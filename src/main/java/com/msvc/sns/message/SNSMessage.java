@@ -55,8 +55,9 @@ public class SNSMessage {
 	 * @return
 	 */
 	public String publish(MessageEvent event, String topicArn) {
-		event.setEventType(Constant.EventType.PREINGESTION.getEvent());
-
+		//event.setEventType(Constant.EventType.INGEST_OBJECT_EVENT.getEvent());
+		System.out.println("message event ::"+event);
+		System.out.println("publish ::"+PreIngestXmlUtil.writeAsJsonString(event));
 		addAttribute(Constant.SNS_MESSAGE, PreIngestXmlUtil.writeAsJsonString(event));
 
 		PublishRequest request = new PublishRequest(topicArn, event.getEventMessage())
@@ -70,9 +71,15 @@ public class SNSMessage {
 	 * 
 	 * @param event
 	 */
-	public void publishMessage(MessageEvent event) {
-		this.publish(event, Constant.CPOC_INGEST_OBJECT_TOPIC_ARN);
+	public void publishMessage(MessageEvent event, boolean isTransactionvalidationRequired) {
+		if (isTransactionvalidationRequired) {
+			this.publish(event, Constant.CPOC_INGEST_OBJECT_TOPIC_ARN);
+		}else {
+			this.publish(event, Constant.CPOC_INGEST_OBJECT_TOPIC_ARN);
+		}
 	}
+	
+	
 
 	/**
 	 * publish message to CpocIngestionException

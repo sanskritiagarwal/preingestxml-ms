@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Member >
+<Member>
   <SubmitterName>SubmitterName</SubmitterName>
   <SubmitterID>SubmitterID</SubmitterID>
   <EmployeeRecordsList>
     <EmployeeRecord>
-      <Conversionid/>
+      <Conversionid>1</Conversionid>
       <BlkOfBusID/>
       <ClientID/>
-      <EmployeeCertificateNumber/>
-      <EmployeeSSN/>
-      <AlternateID1/>
+      <EmployeeCertificateNumber>FAMILY_34</EmployeeCertificateNumber>
+      <EmployeeSSN>223344</EmployeeSSN>
+      <AlternateID1>23</AlternateID1>
       <AlternateID2/>
       <Title/>
       <FirstName/>
@@ -718,3 +718,4 @@
     </EmployeeRecord>
   </EmployeeRecordsList>
 </Member>
+

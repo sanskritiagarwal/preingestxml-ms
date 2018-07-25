@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.msvc</groupId>
-	<artifactId>preingestfw-ms</artifactId>
+	<artifactId>preingestxml-ms</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<dependencies>
@@ -57,6 +57,19 @@
 			<artifactId>xsd-gen</artifactId>
 			<version>0.2.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.persistence/org.eclipse.persistence.moxy -->
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>org.eclipse.persistence.moxy</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.persistence/eclipselink -->
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>eclipselink</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+
 
 
 
@@ -97,6 +110,23 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxb2-maven-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+                   <!-- The name of your generated source package -->
+                	<arguments>-extension -npa -b ${project.basedir}/src/main/xsd/global.xjb</arguments> 
+                </configuration>
 			</plugin>
 		</plugins>
 	</build>

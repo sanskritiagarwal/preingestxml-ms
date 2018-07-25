@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -107,33 +108,31 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 		context.getLogger().log("bucket name:" + bucketName);
 
 		try {
+
 			S3Object response = s3.getObject(new GetObjectRequest(bucketName, bucketKey));
 
 			MessageEvent messageEvent = this.getMessageEvent(bucketName, bucketKey);
 
 			byte[] bytes = IOUtils.toByteArray(response.getObjectContent());
 
-			// context.getLogger().log(" Bucket content: "+Arrays.toString(bytes));
 
-			 PreIngestXmlUtil.addObjectValidationAttribs(response.getObjectContent(), messageEvent);
+   		   // PreIngestXmlUtil.addObjectValidationAttribs(response.getObjectContent(), messageEvent);
 
-			IngestionTemplate template = preIngestXmlDao.loadTemplate();
-			// context.getLogger().log("Reached 0");
-			// List<EmployeeRecord> attrs = template.getEmployeeRecord();
+			IngestionTemplate template = preIngestXmlDao.loadTemplate(bucketName);
 			List<Attributes> attrs = template.getAttributes();
-			String xsdString =  attrs.get(0).getFieldName();
-			
-			context.getLogger().log("XSD: "+xsdString);
-			
-			int extractedTransactionCount = 0;
 
+			//String xsdString =  attrs.get(0).getFieldName();
+
+			String xsdString = XsdValidationUtil.getXSDString();
+			context.getLogger().log("xsdString: "+xsdString);
 			
+
+			int extractedTransactionCount = 0;
 			
 			context.getLogger().log("publish event type INGEST_OBJECT_EVENT");
 			
 			StringBuffer xmlFile=new StringBuffer("");
-			
-			//FileWriter fw = new FileWriter(xmlFile);
+
 			List<Map<String, String>> transactionList = new ArrayList<Map<String, String>>();
 			try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes))
 			{
@@ -141,128 +140,132 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 				
 				while (sc.hasNext()) {
 					String transaction = sc.nextLine();
+					
+					//context.getLogger().log(transaction);
+					
 					xmlFile.append(transaction);
-					//context.getLogger().log("Next Line: " + transaction);
-					extractedTransactionCount++;
-					//extractTransaction(messageEvent, template, transaction, ingestionEvent,
-					// transactionList,extractedTransactionCount);
 				}
 			}
-			
+
 			int chunkSize = Constant.MIN_TRANSACTION_CHUNK_SIZE;
 
-			String xsdStr =XsdValidationUtil.getXSDString();
-			
-			// XSD XML Validation
-			if (XsdValidationUtil.validateXMLSchema(xsdString, xmlFile.toString())) 
+			//String xsdStr =XsdValidationUtil.getXSDString();
+			//boolean isValidChecksum = validateChecksum(messageEvent, context);
+			boolean isValidChecksum = true;
+			//context.getLogger().log("isValidChecksum::"+isValidChecksum);
+			if(isValidChecksum)
 			{
-				context.getLogger().log(Constant.XML_VALID_SUCESS_MESSAGE);
+				context.getLogger().log(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
 				
-				transactionList = getXmlData(xmlFile.toString(),chunkSize);
+				//publishIngestObjectEvent(messageEvent);
 				
-				messageEvent.setTransactionList(getXmlData(xmlFile.toString(),chunkSize));
 				
+				context.getLogger().log("XML STRING: "+xmlFile.toString());
+				
+				// XSD XML Validation
+				if (XsdValidationUtil.validateXMLSchema(xsdString, xmlFile.toString())) 
+				{
+					context.getLogger().log(Constant.XML_VALID_SUCESS_MESSAGE);
+					
+					transactionList = XsdValidationUtil.getXmlData(xmlFile.toString(),chunkSize);
+					context.getLogger().log("Transaction saved:"+transactionList.size());
+					messageEvent.setTransactionList(transactionList);
+					extractedTransactionCount = transactionList.size();
+				}
+
+				messageEvent.setNoOfLines(transactionList.size());
+				
+
+				List<Map<String, String>> batchtransactionList = new ArrayList<Map<String, String>>(); 
+				//for(int i=0;i<transactionList.size();i++)
+			//	{
+
+				int i=0;
+					Iterator<Map<String,String>> itr = transactionList.iterator();
+					context.getLogger().log("Iterator");
+
+						while(itr.hasNext())
+						{
+							messageEvent.setExceptionCode("0");
+							if(chunkSize==1)
+							{
+								context.getLogger().log("chunk size complete");
+								messageEvent.setTransaction(transactionList.get(0));
+								messageEvent.setTransactionList(transactionList);
+								
+								IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
+								
+								int noOfRecords = batchtransactionList.size();
+								
+								// Get transactionEventUuid which will be use to update transactionEvent data later  
+								String transactionEventUuid = saveTransactionEvent(messageEvent, ingestionEvent, noOfRecords);
+								
+								messageEvent.setTransactionEventUuid(transactionEventUuid);
+								
+								context.getLogger().log("[Sanskriti] before publish:"+messageEvent.getTransactionEventUuid());
+								
+								messageEvent.setEventMessage(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
+								// publish TranactionEvent into topic
+								publishIngestTransactionEvent(messageEvent, ingestionEvent);
+								
+								
+							}
+							else if(i==chunkSize)
+							{
+								
+								context.getLogger().log("chunk size complete");
+								messageEvent.setTransaction(batchtransactionList.get(0));
+								
+								messageEvent.setTransactionList(batchtransactionList);
+								
+								IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
+								
+								int noOfRecords = batchtransactionList.size();
+								
+								// Get transactionEventUuid which will be use to update transactionEvent data later  
+								String transactionEventUuid = saveTransactionEvent(messageEvent, ingestionEvent, noOfRecords);
+								
+								messageEvent.setTransactionEventUuid(transactionEventUuid);
+								
+								context.getLogger().log("[Sanskriti] before publish:"+messageEvent.getTransactionEventUuid());
+								
+								messageEvent.setEventMessage(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
+								
+								// publish TranactionEvent into topic
+								publishIngestTransactionEvent(messageEvent, ingestionEvent);
+								
+								i=0;
+								batchtransactionList.removeAll(batchtransactionList);
+
+							}
+							else
+							{
+								context.getLogger().log("2");
+								context.getLogger().log("chunk size "+i);
+								batchtransactionList.add(itr.next());
+								itr.remove();
+								
+								continue;
+							}
+							
+					}
+				//}
+		
+
 			}
 			
 			
-			messageEvent.setNoOfLines(extractedTransactionCount);
-			
-			IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
-			
-			boolean isValidChecksum = validateChecksum(messageEvent, context);
-			
-		
-			context.getLogger().log("[Sanskriti] before return");
-			publishIngestObjectEvent(messageEvent);
-			
-			context.getLogger().log("[Sanskriti] after publish");
+			context.getLogger().log("[Sanskriti] after publish::"+messageEvent.getEventMessage());
 
 			return messageEvent.getEventMessage();
 
 		} catch (Exception e) {
+			e.printStackTrace();
 
 			throw new PreIngestXmlException(Constant.OBJECT_PROCESS_ERROR_MESSAGE);
 		}
 	}
 
-private static List<Map<String,String>> getXmlData(String xmlFile,int chunkSize) {
-		
-		List<Map<String,String>> records = new ArrayList<Map<String,String>>();
-		Map<String,String> employeeRecordMap= new HashMap<String,String>();
-		
-		Document xmldoc = PreIngestXmlUtil.convertStringToDocument(xmlFile.toString());
-		
-		NodeList nodeList = xmldoc.getDocumentElement().getChildNodes();
-		
-		String key="";
-		String value="";
-		
-		Node employeeRecord=null;
-		
-		for (int temp = 0; temp < nodeList.getLength(); temp++) {
-
-			Node nNode = nodeList.item(temp);
-					
-			System.out.println("Current Element :" + nNode.getNodeName());
-			
-			//EmployeeRecordList
-			if (nNode.getNodeType() == Node.ELEMENT_NODE && nNode.getNodeName().equalsIgnoreCase("EmployeeRecordsList")) 
-			{
-				System.out.println("In EmployeeRecordList::"+nNode.getNodeName());
-				
-				NodeList employeeRecords = nNode.getChildNodes();
-				
-				if(employeeRecords.getLength()<=chunkSize)
-				{
-					for(int t=0;t<chunkSize;t++)
-					{
-						System.out.println("employeeRecords.getLength():"+employeeRecords.getLength());
-						for(int i=0;i<employeeRecords.getLength();i++)
-						{
-							employeeRecord = employeeRecords.item(t);
-							
-							if(employeeRecord.getNodeType()==Node.ELEMENT_NODE) 
-							{
-								System.out.println("In employeeRecordEleList item ::"+employeeRecord.getNodeName());
-								
-								Element employeeRecordEle = (Element) employeeRecord;
-								NodeList employeeRecordEleList = employeeRecordEle.getChildNodes();
-	
-								
-								for (int j = 0; j < employeeRecordEleList.getLength(); j++) 
-								{
-						            Node node = employeeRecordEleList.item(j);
-						            System.out.println("In employeeRecordEleList item ::"+node.getNodeName());
-									
-						            if(node.getNodeType()==Node.ELEMENT_NODE) 
-									{
-							            Element nodeEle = (Element) node;
-							            System.out.println("In EmployeeRecordList attrib ::"+nodeEle.getNodeName());
-										
-							            if(node.getNodeName().equals("CMS111"))
-							            {
-							            	List<Map<String,String>> cms111 = new ArrayList<Map<String,String>>();
-							            	
-							            }
-							            System.out.println("attrib key::"+nodeEle.getNodeName());
-							            System.out.println("attrib value::"+nodeEle.getTextContent().trim());
-										
-							            employeeRecordMap.put(node.getNodeName(), nodeEle.getTextContent().trim());
-									}
-						        }
-	
-							}
-						}
-						records.add(employeeRecordMap);
-					}
-					
-				}	
-					
-				}
-			}
-		
-		return records;
-	}
 
 	/**
 	 * publishIngestObjectEvent
@@ -313,8 +316,10 @@ private static List<Map<String,String>> getXmlData(String xmlFile,int chunkSize)
 	 * @param transactionList
 	 * @param extractedTransactionCount
 	 */
-	public void extractTransaction(MessageEvent messageEvent, IngestionTemplate template, String transaction,
+	public void extractTransaction(MessageEvent messageEvent, IngestionTemplate template, 
 			IngestionEvent ingestionEvent, List<Map<String, String>> transactionList, int extractedTransactionCount) {
+		
+		
 		System.out.println("Start extractTransaction with messageEvent =" + messageEvent);
 		System.out.println("ingestionEvent     =" + ingestionEvent);
 		
@@ -324,9 +329,10 @@ private static List<Map<String,String>> getXmlData(String xmlFile,int chunkSize)
 		int noOfRecords = 0;
 		
 		int remainingChunkSize = messageEvent.getNoOfLines() - extractedTransactionCount;
-		System.out.println("remainingChunkSize:"+remainingChunkSize);		
+		
+		System.out.println("remainingChunkSize: "+remainingChunkSize+" transactionList.size()::"+transactionList.size()+" Constant.TRANSACTION_CHUNK_SIZE::"+Constant.TRANSACTION_CHUNK_SIZE);		
 	
-		setExtractedTransactionData(messageEvent, template, transaction, transactionList, transactionMap);
+		//setExtractedTransactionData(messageEvent, template, transaction, transactionList, transactionMap);
 				
 		if (transactionList.size() == Constant.TRANSACTION_CHUNK_SIZE || remainingChunkSize == 0) {
 			System.out.println("chunk size:"+transactionList.size());

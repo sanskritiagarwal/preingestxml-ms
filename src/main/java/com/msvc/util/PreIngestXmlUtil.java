@@ -35,9 +35,15 @@ import org.json.XML;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.msvc.sns.message.MessageEvent;
+
 
 /**
  * 
@@ -50,6 +56,11 @@ import com.msvc.sns.message.MessageEvent;
 public class PreIngestXmlUtil {
 
 	private static final ObjectMapper mapper = new ObjectMapper();
+	static {
+		 mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+		 mapper.setSerializationInclusion(Include.NON_NULL);
+		 mapper.getSerializerProvider().setNullKeySerializer(new MyNullKeySerializer());
+	}
 
 	/**
 	 * get ObjectValidation Attribs
@@ -174,4 +185,14 @@ public class PreIngestXmlUtil {
         } 
         return null;
     }
+	
+	static class MyNullKeySerializer extends JsonSerializer<Object>
+	{
+	  @Override
+	  public void serialize(Object nullKey, JsonGenerator jsonGenerator, SerializerProvider unused) 
+	      throws IOException, JsonProcessingException
+	  {
+	    jsonGenerator.writeFieldName("");
+	  }
+	}
 }
