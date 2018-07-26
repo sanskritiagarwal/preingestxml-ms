@@ -173,7 +173,14 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 					extractedTransactionCount = transactionList.size();
 				}
 
+				
+				
+				//TODO: convertXmltoJSON
+				
+				
 				messageEvent.setNoOfLines(transactionList.size());
+
+				IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
 				
 
 				List<Map<String, String>> batchtransactionList = new ArrayList<Map<String, String>>(); 
@@ -193,7 +200,6 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 								messageEvent.setTransaction(transactionList.get(0));
 								messageEvent.setTransactionList(transactionList);
 								
-								IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
 								
 								int noOfRecords = batchtransactionList.size();
 								
@@ -218,7 +224,6 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 								
 								messageEvent.setTransactionList(batchtransactionList);
 								
-								IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
 								
 								int noOfRecords = batchtransactionList.size();
 								
@@ -253,7 +258,6 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 		
 
 			}
-			
 			
 			context.getLogger().log("[Sanskriti] after publish::"+messageEvent.getEventMessage());
 

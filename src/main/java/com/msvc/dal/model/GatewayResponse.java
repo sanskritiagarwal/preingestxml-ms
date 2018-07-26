@@ -1,4 +1,4 @@
-package com.aws.codestar.projecttemplates;
+package com.msvc.dal.model;
 
 import java.util.Collections;
 import java.util.HashMap;

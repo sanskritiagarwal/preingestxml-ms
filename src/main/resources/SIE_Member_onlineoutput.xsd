@@ -1,0 +1,673 @@
+<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+  <xs:element name="Member" type="MemberType"/>
+  <xs:complexType name="PriorCoverageType">
+    <xs:sequence>
+      <xs:element type="xs:date" name="FromDate"/>
+      <xs:element type="xs:string" name="BenefitPlan"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PriorCoverageListType">
+    <xs:sequence>
+      <xs:element type="PriorCoverageType" name="PriorCoverage"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PreexistingConditionsInfoType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="CategoryName"/>
+      <xs:element type="xs:date" name="ExpirationDate"/>
+      <xs:element type="xs:float" name="BenefitPaid"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PreexistingConditionsListType">
+    <xs:sequence>
+      <xs:element type="PreexistingConditionsInfoType" name="PreexistingConditionsInfo"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MPreexistingConditionsType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="PreexistingConditions"/>
+      <xs:element type="xs:date" name="InvestigationCompletedDate"/>
+      <xs:element type="PreexistingConditionsListType" name="PreexistingConditionsList"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DPreexistingConditionsType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="PreexistingConditions"/>
+      <xs:element type="xs:date" name="InvestigationCompletedDate"/>
+      <xs:element type="PreexistingConditionsListType" name="PreexistingConditionsList"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="VPreexistingConditionsType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="PreexistingConditions"/>
+      <xs:element type="xs:date" name="InvestigationCompletedDate"/>
+      <xs:element type="PreexistingConditionsListType" name="PreexistingConditionsList"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PPreexistingConditionsType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="PreexistingConditions"/>
+      <xs:element type="xs:date" name="InvestigationCompletedDate"/>
+      <xs:element type="PreexistingConditionsListType" name="PreexistingConditionsList"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CMS111Type">
+    <xs:sequence>
+      <xs:element type="xs:string" name="SMHealthInsuranceClaimNum"/>
+      <xs:element type="xs:string" name="SMIndividualPolicyNumber"/>
+      <xs:element type="xs:string" name="SMMedicareEntitlement"/>
+      <xs:element type="xs:string" name="SMMSPEffDate"/>
+      <xs:element type="xs:string" name="SMMSPTermDate"/>
+      <xs:element type="xs:string" name="SMESRDCoordPeriodEffDate"/>
+      <xs:element type="xs:string" name="SMESRDCoordPeriodTermDate"/>
+      <xs:element type="xs:string" name="SMFirstDialysisDate"/>
+      <xs:element type="xs:string" name="SMESRDSelfTrainingDate"/>
+      <xs:element type="xs:string" name="SMTransplantDate"/>
+      <xs:element type="xs:string" name="SMTransplantFailureDate"/>
+      <xs:element type="xs:string" name="SMMedPartAEffDate"/>
+      <xs:element type="xs:string" name="SMMedPartATermDate"/>
+      <xs:element type="xs:string" name="SMMediPartBEffDate"/>
+      <xs:element type="xs:string" name="SMMedPartBTermDate"/>
+      <xs:element type="xs:string" name="SMMedPartCContractorNum"/>
+      <xs:element type="xs:string" name="SMMedPartCEnrollDate"/>
+      <xs:element type="xs:string" name="SMMedPartCTermDate"/>
+      <xs:element type="xs:string" name="SMMedPartDContractorNum"/>
+      <xs:element type="xs:string" name="SMMedPartDEnrollDate"/>
+      <xs:element type="xs:string" name="SMMedPartDTermDate"/>
+      <xs:element type="xs:string" name="SMMedPartDEligStartDate"/>
+      <xs:element type="xs:string" name="SMMedPartDEligStopDate"/>
+      <xs:element type="xs:string" name="SMLastMSPQueryDate"/>
+      <xs:element type="xs:string" name="SMRXInsuredIDNum"/>
+      <xs:element type="xs:string" name="SMRXGroupNum"/>
+      <xs:element type="xs:string" name="SMRXPCN"/>
+      <xs:element type="xs:string" name="SMRXBIN"/>
+      <xs:element type="xs:string" name="SMRXTollFreeNumber"/>
+      <xs:element type="xs:string" name="SMRDSStartDate"/>
+      <xs:element type="xs:string" name="SMRDSEndDate"/>
+      <xs:element type="xs:string" name="SMESRD"/>
+      <xs:element type="xs:string" name="SMDisabled"/>
+      <xs:element type="xs:string" name="SMNonMSPQuery"/>
+      <xs:element type="xs:string" name="SMNONMSPQueryDispCode"/>
+      <xs:element type="xs:string" name="SMNONMSPQueryDispDate"/>
+      <xs:element type="xs:string" name="SMExtractedDate"/>
+      <xs:element type="xs:string" name="SMSplitEntitlement"/>
+      <xs:element type="xs:string" name="SMQueryOnlyDispCode"/>
+      <xs:element type="xs:string" name="SMSEERespCode"/>
+      <xs:element type="xs:string" name="SMMSPDispCode"/>
+      <xs:element type="xs:string" name="SMMSPDispDate"/>
+      <xs:element type="xs:string" name="SMRDSSplitIndicator"/>
+      <xs:element type="xs:string" name="SMRDSReasonCode"/>
+      <xs:element type="xs:string" name="SMRDSDeterIndicator"/>
+      <xs:element type="xs:string" name="errorcode1"/>
+      <xs:element type="xs:string" name="errorcode2"/>
+      <xs:element type="xs:string" name="errorcode3"/>
+      <xs:element type="xs:string" name="errorcode4"/>
+      <xs:element type="xs:string" name="errorcode5"/>
+      <xs:element type="xs:string" name="errorcode6"/>
+      <xs:element type="xs:string" name="errorcode7"/>
+      <xs:element type="xs:string" name="errorcode8"/>
+      <xs:element type="xs:string" name="rxsdispositioncode"/>
+      <xs:element type="xs:string" name="rxsdispositiondate"/>
+      <xs:element type="xs:string" name="dndispositioncode"/>
+      <xs:element type="xs:string" name="dndispositiondate"/>
+      <xs:element type="xs:string" name="NonMSP"/>
+      <xs:element type="xs:string" name="rxerrorcode1"/>
+      <xs:element type="xs:string" name="rxerrorcode2"/>
+      <xs:element type="xs:string" name="rxerrorcode3"/>
+      <xs:element type="xs:string" name="rxerrorcode4"/>
+      <xs:element type="xs:string" name="EmployerException"/>
+      <xs:element type="xs:string" name="EmployerExceptionStartDate"/>
+      <xs:element type="xs:string" name="EmployerExceptionEndDate"/>
+      <xs:element type="xs:string" name="SMSendtoCOBAforMedicareCrossover"/>
+      <xs:element type="xs:string" name="SMLateSubmissionIndicator"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BillingAdminType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="EBilling"/>
+      <xs:element type="xs:string" name="CardNumber"/>
+      <xs:element type="xs:string" name="CardExpDate"/>
+      <xs:element type="xs:string" name="TokenNumberFlag"/>
+      <xs:element type="xs:string" name="EmailID"/>
+      <xs:element type="xs:string" name="CardName"/>
+      <xs:element type="xs:string" name="CardAddressLine1"/>
+      <xs:element type="xs:string" name="CardAddressLine2"/>
+      <xs:element type="xs:string" name="CardCity"/>
+      <xs:element type="xs:string" name="CardState"/>
+      <xs:element type="xs:string" name="CardZip"/>
+      <xs:element type="xs:string" name="CardCountry"/>
+      <xs:element type="xs:string" name="Status"/>
+      <xs:element type="xs:string" name="TransactionID"/>
+      <xs:element type="xs:string" name="DueDate"/>
+      <xs:element type="xs:string" name="TotalAmount"/>
+      <xs:element type="xs:string" name="Amount"/>
+      <xs:element type="xs:string" name="AgentID"/>
+      <xs:element type="xs:string" name="AuthCode"/>
+      <xs:element type="xs:string" name="MMPremium"/>
+      <xs:element type="xs:string" name="MBillingFactorID"/>
+      <xs:element type="xs:string" name="MBillingFactorEffDate"/>
+      <xs:element type="xs:string" name="LPremium"/>
+      <xs:element type="xs:string" name="LBillingFactorID"/>
+      <xs:element type="xs:string" name="LBillingFactorEffDate"/>
+      <xs:element type="xs:string" name="DEPremium"/>
+      <xs:element type="xs:string" name="DEBillingFactorID"/>
+      <xs:element type="xs:string" name="DEBillingFactorEffDate"/>
+      <xs:element type="xs:string" name="RXPremium"/>
+      <xs:element type="xs:string" name="RXBillingFactorID"/>
+      <xs:element type="xs:string" name="RXBillingFactorEffDate"/>
+      <xs:element type="xs:string" name="VIPremium"/>
+      <xs:element type="xs:string" name="VIBillingFactorID"/>
+      <xs:element type="xs:string" name="VIBillingFactorEffDate"/>
+      <xs:element type="xs:string" name="SPremium"/>
+      <xs:element type="xs:string" name="SBillingFactorID"/>
+      <xs:element type="xs:string" name="SBillingFactorEffDate"/>
+      <xs:element type="xs:string" name="PaymentCodeRetval"/>
+      <xs:element type="xs:string" name="PaymentResponse"/>
+      <xs:element type="xs:string" name="TransactionDate"/>
+      <xs:element type="xs:string" name="TransactionTime"/>
+      <xs:element type="xs:string" name="PaymentMethod"/>
+      <xs:element type="xs:string" name="TransactionType"/>
+      <xs:element type="xs:string" name="ContactName"/>
+      <xs:element type="xs:string" name="Encrypted"/>
+      <xs:element type="xs:string" name="TypeOfPayment"/>
+      <xs:element type="xs:string" name="Form_name"/>
+      <xs:element type="xs:string" name="SortMethod"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MemberLaserAmtType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="LaserAmount"/>
+      <xs:element type="xs:string" name="ReinsuranceLimit"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MemberLaserAmtListType">
+    <xs:sequence>
+      <xs:element type="MemberLaserAmtType" name="MemberLaserAmt"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MBillingFactorType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="MiscBillingFactor"/>
+      <xs:element type="xs:date" name="BillingFactorEffectiveDate"/>
+      <xs:element type="xs:date" name="BillingFactorTerminationDate"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MBillingFactorsType">
+    <xs:sequence>
+      <xs:element type="MBillingFactorType" name="MBillingFactor"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DBillingFactorType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="MiscBillingFactor"/>
+      <xs:element type="xs:date" name="BillingFactorEffectiveDate"/>
+      <xs:element type="xs:date" name="BillingFactorTerminationDate"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DBillingFactorsType">
+    <xs:sequence>
+      <xs:element type="DBillingFactorType" name="DBillingFactor"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="VBillingFactorType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="MiscBillingFactor"/>
+      <xs:element type="xs:date" name="BillingFactorEffectiveDate"/>
+      <xs:element type="xs:date" name="BillingFactorTerminationDate"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="VBillingFactorsType">
+    <xs:sequence>
+      <xs:element type="VBillingFactorType" name="VBillingFactor"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PBillingFactorType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="MiscBillingFactor"/>
+      <xs:element type="xs:date" name="BillingFactorEffectiveDate"/>
+      <xs:element type="xs:date" name="BillingFactorTerminationDate"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PBillingFactorsType">
+    <xs:sequence>
+      <xs:element type="PBillingFactorType" name="PBillingFactor"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DepCoverageType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="CovgEffectiveDate"/>
+      <xs:element type="xs:string" name="Status"/>
+      <xs:element type="xs:string" name="IndRenewalDate"/>
+      <xs:element type="xs:string" name="Lifestyle"/>
+      <xs:element type="xs:string" name="TerminationReason"/>
+      <xs:element type="xs:string" name="TerminationDate"/>
+      <xs:element type="xs:string" name="ReinstatementReason"/>
+      <xs:element type="xs:string" name="CobraReason"/>
+      <xs:element type="xs:string" name="Medicare"/>
+      <xs:element type="xs:string" name="LaseredStopLoss"/>
+      <xs:element type="MemberLaserAmtListType" name="MemberLaserAmtList"/>
+      <xs:element type="xs:string" name="ApplyStopLossContractMax"/>
+      <xs:element type="xs:string" name="StopLossContractMaxCap"/>
+      <xs:element type="xs:string" name="StopLossContract"/>
+      <xs:element type="xs:string" name="StopLossAmount"/>
+      <xs:element type="xs:string" name="DisabilityStatus"/>
+      <xs:element type="xs:string" name="DisabilityBeginDate"/>
+      <xs:element type="xs:string" name="DisabilityEndDate"/>
+      <xs:element type="xs:string" name="ConvertedRecord"/>
+      <xs:element type="xs:string" name="EmployeeViewMyInfo"/>
+      <xs:element type="xs:string" name="EmployeeDoNotDisplayAlert"/>
+      <xs:element type="xs:string" name="PartyViewMyInfo"/>
+      <xs:element type="xs:string" name="PartyDoNotDisplayAlert"/>
+      <xs:element type="xs:string" name="ResponsibilityParty"/>
+      <xs:element type="xs:string" name="ClientLocation"/>
+      <xs:element type="xs:string" name="Department"/>
+      <xs:element type="xs:string" name="MBenefitPlan"/>
+      <xs:element type="xs:string" name="MNetworkChoice"/>
+      <xs:element type="xs:string" name="MPendClaims"/>
+      <xs:element type="xs:string" name="MPendReason"/>
+      <xs:element type="MBillingFactorsType" name="MBillingFactors"/>
+      <xs:element type="xs:string" name="MConnectorID"/>
+      <xs:element type="xs:string" name="MProviderType"/>
+      <xs:element type="xs:string" name="MExistingPatient"/>
+      <xs:element type="xs:string" name="MApplyCOB"/>
+      <xs:element type="xs:string" name="MPayerResponsibility"/>
+      <xs:element type="xs:string" name="MCOBPolicyNumber"/>
+      <xs:element type="xs:string" name="MLastInvestigateDate"/>
+      <xs:element type="xs:string" name="MInvestigatedAfter"/>
+      <xs:element type="xs:string" name="MCOBRuleset"/>
+      <xs:element type="xs:string" name="MIgnoreClaimCOBFlag"/>
+      <xs:element type="xs:string" name="MOtherCovgInJavelina"/>
+      <xs:element type="xs:string" name="MCOBPatientCertificate"/>
+      <xs:element type="xs:string" name="MCOBPatientConversionid"/>
+      <xs:element type="xs:string" name="MOtherCarrier"/>
+      <xs:element type="xs:string" name="MPrintIDCard"/>
+      <xs:element type="xs:string" name="MIDCardFormat"/>
+      <xs:element type="xs:string" name="MCardPrintReason"/>
+      <xs:element type="xs:string" name="DBenefitPlan"/>
+      <xs:element type="xs:string" name="DNetworkChoice"/>
+      <xs:element type="xs:string" name="DPendClaims"/>
+      <xs:element type="xs:string" name="DPendReason"/>
+      <xs:element type="DBillingFactorsType" name="DBillingFactors"/>
+      <xs:element type="xs:string" name="DConnectorID"/>
+      <xs:element type="xs:string" name="DProviderType"/>
+      <xs:element type="xs:string" name="DExistingPatient"/>
+      <xs:element type="xs:string" name="DApplyCOB"/>
+      <xs:element type="xs:string" name="DPayerResponsibility"/>
+      <xs:element type="xs:string" name="DCOBPolicyNumber"/>
+      <xs:element type="xs:string" name="DLastInvestigateDate"/>
+      <xs:element type="xs:string" name="DInvestigatedAfter"/>
+      <xs:element type="xs:string" name="DCOBRuleset"/>
+      <xs:element type="xs:string" name="DIgnoreClaimCOBFlag"/>
+      <xs:element type="xs:string" name="DOtherCovgInJavelina"/>
+      <xs:element type="xs:string" name="DCOBPatientCertificate"/>
+      <xs:element type="xs:string" name="DCOBPatientConversionid"/>
+      <xs:element type="xs:string" name="DOtherCarrier"/>
+      <xs:element type="xs:string" name="DPrintIDCard"/>
+      <xs:element type="xs:string" name="DIDCardFormat"/>
+      <xs:element type="xs:string" name="DCardPrintReason"/>
+      <xs:element type="xs:string" name="VBenefitPlan"/>
+      <xs:element type="xs:string" name="VNetworkChoice"/>
+      <xs:element type="xs:string" name="VPendClaims"/>
+      <xs:element type="xs:string" name="VPendReason"/>
+      <xs:element type="VBillingFactorsType" name="VBillingFactors"/>
+      <xs:element type="xs:string" name="VConnectorID"/>
+      <xs:element type="xs:string" name="VProviderType"/>
+      <xs:element type="xs:string" name="VExistingPatient"/>
+      <xs:element type="xs:string" name="VApplyCOB"/>
+      <xs:element type="xs:string" name="VPayerResponsibility"/>
+      <xs:element type="xs:string" name="VCOBPolicyNumber"/>
+      <xs:element type="xs:string" name="VLastInvestigateDate"/>
+      <xs:element type="xs:string" name="VInvestigatedAfter"/>
+      <xs:element type="xs:string" name="VCOBRuleset"/>
+      <xs:element type="xs:string" name="VIgnoreClaimCOBFlag"/>
+      <xs:element type="xs:string" name="VOtherCovgInJavelina"/>
+      <xs:element type="xs:string" name="VCOBPatientCertificate"/>
+      <xs:element type="xs:string" name="VCOBPatientConversionid"/>
+      <xs:element type="xs:string" name="VOtherCarrier"/>
+      <xs:element type="xs:string" name="VPrintIDCard"/>
+      <xs:element type="xs:string" name="VIDCardFormat"/>
+      <xs:element type="xs:string" name="VCardPrintReason"/>
+      <xs:element type="xs:string" name="PBenefitPlan"/>
+      <xs:element type="xs:string" name="PNetworkChoice"/>
+      <xs:element type="xs:string" name="PPendClaims"/>
+      <xs:element type="xs:string" name="PPendReason"/>
+      <xs:element type="PBillingFactorsType" name="PBillingFactors"/>
+      <xs:element type="xs:string" name="PConnectorID"/>
+      <xs:element type="xs:string" name="PProviderType"/>
+      <xs:element type="xs:string" name="PExistingPatient"/>
+      <xs:element type="xs:string" name="PApplyCOB"/>
+      <xs:element type="xs:string" name="PPayerResponsibility"/>
+      <xs:element type="xs:string" name="PCOBPolicyNumber"/>
+      <xs:element type="xs:string" name="PLastInvestigateDate"/>
+      <xs:element type="xs:string" name="PInvestigatedAfter"/>
+      <xs:element type="xs:string" name="PCOBRuleset"/>
+      <xs:element type="xs:string" name="PIgnoreClaimCOBFlag"/>
+      <xs:element type="xs:string" name="POtherCovgInJavelina"/>
+      <xs:element type="xs:string" name="PCOBPatientCertificate"/>
+      <xs:element type="xs:string" name="PCOBPatientConversionid"/>
+      <xs:element type="xs:string" name="POtherCarrier"/>
+      <xs:element type="xs:string" name="PPrintIDCard"/>
+      <xs:element type="xs:string" name="PIDCardFormat"/>
+      <xs:element type="xs:string" name="PCardPrintReason"/>
+      <xs:element type="xs:string" name="FlexCoverage"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DependentCoverageListType">
+    <xs:sequence>
+      <xs:element type="DepCoverageType" name="DepCoverage"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DependentRecordType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="Conversionid"/>
+      <xs:element type="xs:string" name="DependentCertificateNumber"/>
+      <xs:element type="xs:string" name="DepNumber"/>
+      <xs:element type="xs:string" name="DepSSN"/>
+      <xs:element type="xs:string" name="AlternateID1"/>
+      <xs:element type="xs:string" name="AlternateID2"/>
+      <xs:element type="xs:string" name="BlkOfBusID"/>
+      <xs:element type="xs:string" name="ClientID"/>
+      <xs:element type="xs:string" name="EmployeeCertificateNumber"/>
+      <xs:element type="xs:string" name="EmployeeSSN"/>
+      <xs:element type="xs:string" name="EmployeeID"/>
+      <xs:element type="xs:string" name="Title"/>
+      <xs:element type="xs:string" name="FirstName"/>
+      <xs:element type="xs:string" name="MiddleName"/>
+      <xs:element type="xs:string" name="LastName"/>
+      <xs:element type="xs:string" name="Suffix"/>
+      <xs:element type="xs:string" name="MedicareID"/>
+      <xs:element type="xs:string" name="DepSequenceNumber"/>
+      <xs:element type="xs:string" name="RelationshipToEmployee"/>
+      <xs:element type="xs:string" name="StudentStatus"/>
+      <xs:element type="xs:string" name="BirthDate"/>
+      <xs:element type="xs:string" name="Gender"/>
+      <xs:element type="xs:string" name="AlternateID"/>
+      <xs:element type="xs:string" name="AlternatePayee"/>
+      <xs:element type="xs:string" name="HomePhone1"/>
+      <xs:element type="xs:string" name="HomePhone1Ext"/>
+      <xs:element type="xs:string" name="HomePhone2"/>
+      <xs:element type="xs:string" name="HomePhone2Ext"/>
+      <xs:element type="xs:string" name="WorkPhone1"/>
+      <xs:element type="xs:string" name="WorkPhone1Ext"/>
+      <xs:element type="xs:string" name="WorkPhone2"/>
+      <xs:element type="xs:string" name="WorkPhone2Ext"/>
+      <xs:element type="xs:string" name="MobilePhone1"/>
+      <xs:element type="xs:string" name="MobilePhone2"/>
+      <xs:element type="xs:string" name="FaxPhone1"/>
+      <xs:element type="xs:string" name="FaxPhone2"/>
+      <xs:element type="xs:string" name="Email"/>
+      <xs:element type="xs:string" name="Languages"/>
+      <xs:element type="xs:string" name="REffectiveDate"/>
+      <xs:element type="xs:string" name="RAddressLine1"/>
+      <xs:element type="xs:string" name="RAddressLine2"/>
+      <xs:element type="xs:string" name="RAddressLine3"/>
+      <xs:element type="xs:string" name="RCity"/>
+      <xs:element type="xs:string" name="RState"/>
+      <xs:element type="xs:string" name="RPostalCode"/>
+      <xs:element type="xs:string" name="RCounty"/>
+      <xs:element type="xs:string" name="RCountry"/>
+      <xs:element type="xs:string" name="ROverride"/>
+      <xs:element type="xs:string" name="MEffectiveDate"/>
+      <xs:element type="xs:string" name="MAlternateMailingName"/>
+      <xs:element type="xs:string" name="MAddressLine1"/>
+      <xs:element type="xs:string" name="MAddressLine2"/>
+      <xs:element type="xs:string" name="MAddressLine3"/>
+      <xs:element type="xs:string" name="MPostalCode"/>
+      <xs:element type="xs:string" name="MState"/>
+      <xs:element type="xs:string" name="MCity"/>
+      <xs:element type="xs:string" name="MCounty"/>
+      <xs:element type="xs:string" name="MCountry"/>
+      <xs:element type="xs:string" name="MOverride"/>
+      <xs:element type="xs:string" name="CTitle"/>
+      <xs:element type="xs:string" name="CFirstName"/>
+      <xs:element type="xs:string" name="CMiddleName"/>
+      <xs:element type="xs:string" name="CLastName"/>
+      <xs:element type="xs:string" name="IdentificationCode"/>
+      <xs:element type="xs:string" name="CHomePhone1"/>
+      <xs:element type="xs:string" name="CHomePhone1Ext"/>
+      <xs:element type="xs:string" name="CHomePhone2"/>
+      <xs:element type="xs:string" name="CHomePhone2Ext"/>
+      <xs:element type="xs:string" name="CWorkPhone1"/>
+      <xs:element type="xs:string" name="CWorkPhone1Ext"/>
+      <xs:element type="xs:string" name="CWorkPhone2"/>
+      <xs:element type="xs:string" name="CWorkPhone2Ext"/>
+      <xs:element type="xs:string" name="CMobilePhone1"/>
+      <xs:element type="xs:string" name="CMobilePhone2"/>
+      <xs:element type="xs:string" name="CFaxPhone1"/>
+      <xs:element type="xs:string" name="CFaxPhone2"/>
+      <xs:element type="xs:string" name="CEffectiveDate"/>
+      <xs:element type="xs:string" name="CAddressLine1"/>
+      <xs:element type="xs:string" name="CAddressLine2"/>
+      <xs:element type="xs:string" name="CAddressLine3"/>
+      <xs:element type="xs:string" name="CCity"/>
+      <xs:element type="xs:string" name="CState"/>
+      <xs:element type="xs:string" name="CPostalCode"/>
+      <xs:element type="xs:string" name="CCounty"/>
+      <xs:element type="xs:string" name="CCountry"/>
+      <xs:element type="xs:string" name="COverride"/>
+      <xs:element type="xs:string" name="RPTitle"/>
+      <xs:element type="xs:string" name="RPFirstName"/>
+      <xs:element type="xs:string" name="RPMiddleName"/>
+      <xs:element type="xs:string" name="RPLastName"/>
+      <xs:element type="xs:string" name="RPIdentificationCode"/>
+      <xs:element type="xs:string" name="ResponsibleType"/>
+      <xs:element type="xs:string" name="RPHomePhone1"/>
+      <xs:element type="xs:string" name="RPHomePhone1Ext"/>
+      <xs:element type="xs:string" name="RPHomePhone2"/>
+      <xs:element type="xs:string" name="RPHomePhone2Ext"/>
+      <xs:element type="xs:string" name="RPWorkPhone1"/>
+      <xs:element type="xs:string" name="RPWorkPhone1Ext"/>
+      <xs:element type="xs:string" name="RPWorkPhone2"/>
+      <xs:element type="xs:string" name="RPWorkPhone2Ext"/>
+      <xs:element type="xs:string" name="RPMobilePhone1"/>
+      <xs:element type="xs:string" name="RPMobilePhone2"/>
+      <xs:element type="xs:string" name="RPFaxPhone1"/>
+      <xs:element type="xs:string" name="RPFaxPhone2"/>
+      <xs:element type="xs:string" name="RPEffectiveDate"/>
+      <xs:element type="xs:string" name="RPAddressLine1"/>
+      <xs:element type="xs:string" name="RPAddressLine2"/>
+      <xs:element type="xs:string" name="RPAddressLine3"/>
+      <xs:element type="xs:string" name="RPCity"/>
+      <xs:element type="xs:string" name="RPState"/>
+      <xs:element type="xs:string" name="RPPostalCode"/>
+      <xs:element type="xs:string" name="RPCounty"/>
+      <xs:element type="xs:string" name="RPCountry"/>
+      <xs:element type="xs:string" name="RPOverride"/>
+      <xs:element type="xs:string" name="SchoolName"/>
+      <xs:element type="xs:string" name="SemesterHours"/>
+      <xs:element type="xs:string" name="EHomePhone1"/>
+      <xs:element type="xs:string" name="EHomePhone1Ext"/>
+      <xs:element type="xs:string" name="EHomePhone2"/>
+      <xs:element type="xs:string" name="EHomePhone2Ext"/>
+      <xs:element type="xs:string" name="EWorkPhone1"/>
+      <xs:element type="xs:string" name="EWorkPhone1Ext"/>
+      <xs:element type="xs:string" name="EWorkPhone2"/>
+      <xs:element type="xs:string" name="EWorkPhone2Ext"/>
+      <xs:element type="xs:string" name="EMobilePhone1"/>
+      <xs:element type="xs:string" name="EMobilePhone2"/>
+      <xs:element type="xs:string" name="EFaxPhone1"/>
+      <xs:element type="xs:string" name="EFaxPhone2"/>
+      <xs:element type="xs:string" name="EEffectiveDate"/>
+      <xs:element type="xs:string" name="EAddressLine1"/>
+      <xs:element type="xs:string" name="EAddressLine2"/>
+      <xs:element type="xs:string" name="EAddressLine3"/>
+      <xs:element type="xs:string" name="ECity"/>
+      <xs:element type="xs:string" name="EState"/>
+      <xs:element type="xs:string" name="EPostalCode"/>
+      <xs:element type="xs:string" name="ECounty"/>
+      <xs:element type="xs:string" name="ECountry"/>
+      <xs:element type="xs:string" name="RRSchoolName"/>
+      <xs:element type="xs:string" name="RRSemesterHours"/>
+      <xs:element type="xs:string" name="RRHomePhone1"/>
+      <xs:element type="xs:string" name="RRHomePhone1Ext"/>
+      <xs:element type="xs:string" name="RRHomePhone2"/>
+      <xs:element type="xs:string" name="RRHomePhone2Ext"/>
+      <xs:element type="xs:string" name="RRWorkPhone1"/>
+      <xs:element type="xs:string" name="RRWorkPhone1Ext"/>
+      <xs:element type="xs:string" name="RRWorkPhone2"/>
+      <xs:element type="xs:string" name="RRWorkPhone2Ext"/>
+      <xs:element type="xs:string" name="RRMobilePhone1"/>
+      <xs:element type="xs:string" name="RRMobilePhone2"/>
+      <xs:element type="xs:string" name="RRFaxPhone1"/>
+      <xs:element type="xs:string" name="RRFaxPhone2"/>
+      <xs:element type="xs:string" name="RREffectiveDate"/>
+      <xs:element type="xs:string" name="RRAddressLine1"/>
+      <xs:element type="xs:string" name="RRAddressLine2"/>
+      <xs:element type="xs:string" name="RRAddressLine3"/>
+      <xs:element type="xs:string" name="RRCity"/>
+      <xs:element type="xs:string" name="RRState"/>
+      <xs:element type="xs:string" name="RRPostalCode"/>
+      <xs:element type="xs:string" name="RRCounty"/>
+      <xs:element type="xs:string" name="RRCountry"/>
+      <xs:element type="xs:string" name="PayChecksToEmployee"/>
+      <xs:element type="xs:string" name="MailEOBsToEmployee"/>
+      <xs:element type="xs:string" name="SelectEOBAddress"/>
+      <xs:element type="xs:string" name="SelectPaymentAddress"/>
+      <xs:element type="xs:string" name="PayeeName"/>
+      <xs:element type="xs:string" name="ExpediteClaims"/>
+      <xs:element type="xs:string" name="MedicallyUnderwritten"/>
+      <xs:element type="xs:string" name="BusinessTakeover"/>
+      <xs:element type="xs:string" name="LateEntrant"/>
+      <xs:element type="xs:string" name="EnrollmentDate"/>
+      <xs:element type="xs:string" name="MailPaperEOB"/>
+      <xs:element type="xs:string" name="ReceiveMail"/>
+      <xs:element type="xs:string" name="Height"/>
+      <xs:element type="xs:string" name="Weight"/>
+      <xs:element type="xs:string" name="Handicap"/>
+      <xs:element type="xs:string" name="Health"/>
+      <xs:element type="xs:string" name="DeathDate"/>
+      <xs:element type="xs:string" name="Race"/>
+      <xs:element type="xs:string" name="Citizenship"/>
+      <xs:element type="xs:string" name="UserDefinedField1"/>
+      <xs:element type="xs:string" name="UserDefinedField2"/>
+      <xs:element type="xs:string" name="UserDefinedField3"/>
+      <xs:element type="xs:string" name="UserDefinedField4"/>
+      <xs:element type="xs:string" name="UserDefinedField5"/>
+      <xs:element type="xs:string" name="UserDefinedField6"/>
+      <xs:element type="xs:string" name="Comments"/>
+      <xs:element type="xs:string" name="HIPAACreditableCovgDate"/>
+      <xs:element type="xs:string" name="FormerHealthPlanName"/>
+      <xs:element type="xs:string" name="Enrollee"/>
+      <xs:element type="PriorCoverageListType" name="PriorCoverageList"/>
+      <xs:element type="MPreexistingConditionsType" name="MPreexistingConditions"/>
+      <xs:element type="DPreexistingConditionsType" name="DPreexistingConditions"/>
+      <xs:element type="VPreexistingConditionsType" name="VPreexistingConditions"/>
+      <xs:element type="PPreexistingConditionsType" name="PPreexistingConditions"/>
+      <xs:element type="DependentCoverageListType" name="DependentCoverageList"/>
+      <xs:element type="CMS111Type" name="CMS111"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DependentRecordsListType">
+    <xs:sequence>
+      <xs:element type="DependentRecordType" name="DependentRecord"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="EmployeeRecordType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="Conversionid"/>
+      <xs:element type="xs:string" name="BlkOfBusID"/>
+      <xs:element type="xs:string" name="ClientID"/>
+      <xs:element type="xs:string" name="EmployeeCertificateNumber"/>
+      <xs:element type="xs:string" name="EmployeeSSN"/>
+      <xs:element type="xs:string" name="AlternateID1"/>
+      <xs:element type="xs:string" name="AlternateID2"/>
+      <xs:element type="xs:string" name="Title"/>
+      <xs:element type="xs:string" name="FirstName"/>
+      <xs:element type="xs:string" name="MiddleName"/>
+      <xs:element type="xs:string" name="LastName"/>
+      <xs:element type="xs:string" name="Suffix"/>
+      <xs:element type="xs:string" name="MedicareID"/>
+      <xs:element type="xs:string" name="BirthDate"/>
+      <xs:element type="xs:string" name="Gender"/>
+      <xs:element type="xs:string" name="MaritalStatus"/>
+      <xs:element type="xs:string" name="AsOfDate"/>
+      <xs:element type="xs:string" name="Email"/>
+      <xs:element type="xs:string" name="AlternatePayee"/>
+      <xs:element type="xs:string" name="Languages"/>
+      <xs:element type="xs:string" name="HomePhone1"/>
+      <xs:element type="xs:string" name="HomePhone1Ext"/>
+      <xs:element type="xs:string" name="HomePhone2"/>
+      <xs:element type="xs:string" name="HomePhone2Ext"/>
+      <xs:element type="xs:string" name="WorkPhone1"/>
+      <xs:element type="xs:string" name="WorkPhone1Ext"/>
+      <xs:element type="xs:string" name="WorkPhone2"/>
+      <xs:element type="xs:string" name="WorkPhone2Ext"/>
+      <xs:element type="xs:string" name="MobilePhone1"/>
+      <xs:element type="xs:string" name="MobilePhone2"/>
+      <xs:element type="xs:string" name="FaxPhone1"/>
+      <xs:element type="xs:string" name="FaxPhone2"/>
+      <xs:element type="xs:string" name="REffectiveDate"/>
+      <xs:element type="xs:string" name="RAddressLine1"/>
+      <xs:element type="xs:string" name="RAddressLine2"/>
+      <xs:element type="xs:string" name="RAddressLine3"/>
+      <xs:element type="xs:string" name="RCity"/>
+      <xs:element type="xs:string" name="RState"/>
+      <xs:element type="xs:string" name="RPostalCode"/>
+      <xs:element type="xs:string" name="RCounty"/>
+      <xs:element type="xs:string" name="RCountry"/>
+      <xs:element type="xs:string" name="ROverride"/>
+      <xs:element type="xs:string" name="MEffectiveDate"/>
+      <xs:element type="xs:string" name="MAlternateMailingName"/>
+      <xs:element type="xs:string" name="MAddressLine1"/>
+      <xs:element type="xs:string" name="MAddressLine2"/>
+      <xs:element type="xs:string" name="MAddressLine3"/>
+      <xs:element type="xs:string" name="MCity"/>
+      <xs:element type="xs:string" name="MState"/>
+      <xs:element type="xs:string" name="MPostalCode"/>
+      <xs:element type="xs:string" name="MCounty"/>
+      <xs:element type="xs:string" name="MCountry"/>
+      <xs:element type="xs:string" name="MOverride"/>
+      <xs:element type="xs:string" name="ExpediteClaims"/>
+      <xs:element type="xs:string" name="MedicallyUnderwritten"/>
+      <xs:element type="xs:string" name="BusinessTakeover"/>
+      <xs:element type="xs:string" name="LateEntrant"/>
+      <xs:element type="xs:string" name="EnrollmentDate"/>
+      <xs:element type="xs:string" name="ReceiveMail"/>
+      <xs:element type="xs:string" name="MailPaperEOB"/>
+      <xs:element type="xs:string" name="SelectPaymentAddress"/>
+      <xs:element type="xs:string" name="SelectEOBAddress"/>
+      <xs:element type="xs:string" name="Height"/>
+      <xs:element type="xs:string" name="Weight"/>
+      <xs:element type="xs:string" name="Health"/>
+      <xs:element type="xs:string" name="Beneficiary"/>
+      <xs:element type="xs:string" name="Race"/>
+      <xs:element type="xs:string" name="Citizenship"/>
+      <xs:element type="xs:string" name="Handicap"/>
+      <xs:element type="xs:string" name="DeathDate"/>
+      <xs:element type="xs:string" name="UserDefinedField1"/>
+      <xs:element type="xs:string" name="UserDefinedField2"/>
+      <xs:element type="xs:string" name="UserDefinedField3"/>
+      <xs:element type="xs:string" name="UserDefinedField4"/>
+      <xs:element type="xs:string" name="UserDefinedField5"/>
+      <xs:element type="xs:string" name="UserDefinedField6"/>
+      <xs:element type="xs:string" name="Comments"/>
+      <xs:element type="xs:string" name="HIPAACreditableCovgDate"/>
+      <xs:element type="xs:string" name="FormerHealthPlanName"/>
+      <xs:element type="xs:string" name="CheckingAccountNum"/>
+      <xs:element type="xs:string" name="Enrollee"/>
+      <xs:element type="PriorCoverageListType" name="PriorCoverageList"/>
+      <xs:element type="MPreexistingConditionsType" name="MPreexistingConditions"/>
+      <xs:element type="DPreexistingConditionsType" name="DPreexistingConditions"/>
+      <xs:element type="VPreexistingConditionsType" name="VPreexistingConditions"/>
+      <xs:element type="PPreexistingConditionsType" name="PPreexistingConditions"/>
+      <xs:element type="CMS111Type" name="CMS111"/>
+      <xs:element type="BillingAdminType" name="BillingAdmin"/>
+      <xs:element type="xs:string" name="EmployeeCoverageList"/>
+      <xs:element type="DependentRecordsListType" name="DependentRecordsList"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="EmployeeRecordsListType">
+    <xs:sequence>
+      <xs:element type="EmployeeRecordType" name="EmployeeRecord"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MemberType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="SubmitterName"/>
+      <xs:element type="xs:string" name="SubmitterID"/>
+      <xs:element type="EmployeeRecordsListType" name="EmployeeRecordsList"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

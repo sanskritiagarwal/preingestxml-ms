@@ -1,0 +1,238 @@
+
+/***************************************************************************
+ * Copyright (C) Centivo 
+ * 
+ * The reproduction, transmission or use of this document or its contents is not permitted without
+ * prior express written consent of Centivo. Offenders will be liable for damages. All rights,
+ * including but not limited to rights created by patent grant or registration of a utility model or
+ * design, are reserved.
+ * 
+ * Centivo reserves the right to modify technical specifications and features.
+ * 
+ * Technical specifications and features are binding only insofar as they are specifically and
+ * expressly agreed upon in a written contract.
+ * 
+ **************************************************************************/
+
+package com.msvc.sns.message;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 
+ * serialized object that supposed to send to topic
+ * 
+ * @author anand.jha
+ *
+ */
+
+public class MessageEvent {
+
+	private String bucketName;
+	private String bucketKey;
+	private String eventMessage;
+	private String checksum;
+	private Integer noOfLines;
+	private Long objectSize;
+	private String eventType;
+	private String template;
+	private List<Map<String, String>> transactionList;
+	private Map <String, String> transaction;
+	private String exceptionCode;
+	private String exceptionDescription;
+	private String ingestEventUuid;
+	private String transactionEventUuid;
+	private Long ingestionTimestamp;
+	
+	public String getIngestEventUuid() {
+		return ingestEventUuid;
+	}
+
+	public void setIngestEventUuid(String ingestEventUuid) {
+		this.ingestEventUuid = ingestEventUuid;
+	}
+
+	public Long getIngestionTimestamp() {
+		return ingestionTimestamp;
+	}
+
+	public void setIngestionTimestamp(Long ingestionTimestamp) {
+		this.ingestionTimestamp = ingestionTimestamp;
+	}
+
+
+	public Map<String, String> getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Map<String, String> transaction) {
+		this.transaction = transaction;
+	}
+
+	/**
+	 * @return the template
+	 */
+	public String getTemplate() {
+		return template;
+	}
+
+	/**
+	 * @param template the template to set
+	 */
+	public void setTemplate(String template) {
+		this.template = template;
+	}
+
+	/**
+	 * @return the bucketName
+	 */
+	public String getBucketName() {
+		return bucketName;
+	}
+
+	/**
+	 * @param bucketName
+	 *            the bucketName to set
+	 */
+	public void setBucketName(String bucketName) {
+		this.bucketName = bucketName;
+	}
+
+	/**
+	 * @return the bucketKey
+	 */
+	public String getBucketKey() {
+		return bucketKey;
+	}
+
+	/**
+	 * @param bucketKey
+	 *            the bucketKey to set
+	 */
+	public void setBucketKey(String bucketKey) {
+		this.bucketKey = bucketKey;
+	}
+
+	/**
+	 * @return the eventMessage
+	 */
+	public String getEventMessage() {
+		return eventMessage;
+	}
+
+	/**
+	 * @param eventMessage
+	 *            the eventMessage to set
+	 */
+	public void setEventMessage(String eventMessage) {
+		this.eventMessage = eventMessage;
+	}
+
+	/**
+	 * @return the checksum
+	 */
+	public String getChecksum() {
+		return checksum;
+	}
+
+	/**
+	 * @param checksum
+	 *            the checksum to set
+	 */
+	public void setChecksum(String checksum) {
+		this.checksum = checksum;
+	}
+
+	/**
+	 * @return the noOfLines
+	 */
+	public Integer getNoOfLines() {
+		return noOfLines;
+	}
+
+	/**
+	 * @param noOfLines
+	 *            the noOfLines to set
+	 */
+	public void setNoOfLines(Integer noOfLines) {
+		this.noOfLines = noOfLines;
+	}
+
+	/**
+	 * @return the objectSize
+	 */
+	public Long getObjectSize() {
+		return objectSize;
+	}
+
+	/**
+	 * @param objectSize
+	 *            the objectSize to set
+	 */
+	public void setObjectSize(Long objectSize) {
+		this.objectSize = objectSize;
+	}
+
+	/**
+	 * @return the eventType
+	 */
+	public String getEventType() {
+		return eventType;
+	}
+
+	/**
+	 * @param eventType
+	 *            the eventType to set
+	 */
+	public void setEventType(String eventType) {
+		this.eventType = eventType;
+	}
+
+	
+	
+	public String getExceptionCode() {
+		return exceptionCode;
+	}
+
+	public void setExceptionCode(String exceptionCode) {
+		this.exceptionCode = exceptionCode;
+	}
+
+	public String getExceptionDescription() {
+		return exceptionDescription;
+	}
+
+	public void setExceptionDescription(String exceptionDescription) {
+		this.exceptionDescription = exceptionDescription;
+	}
+
+	public List<Map<String, String>> getTransactionList() {
+		return transactionList;
+	}
+
+	public void setTransactionList(List<Map<String, String>> transactionList) {
+		this.transactionList = transactionList;
+	}
+
+	public String getTransactionEventUuid() {
+		return transactionEventUuid;
+	}
+
+	public void setTransactionEventUuid(String transactionEventUuid) {
+		this.transactionEventUuid = transactionEventUuid;
+	}
+
+	@Override
+	public String toString() {
+		return "MessageEvent [bucketName=" + bucketName + ", bucketKey=" + bucketKey + ", eventMessage=" + eventMessage
+				+ ", checksum=" + checksum + ", noOfLines=" + noOfLines + ", objectSize=" + objectSize + ", eventType="
+				+ eventType + ", template=" + template + ", transactionList=" + transactionList + ", transaction="
+				+ transaction + ", exceptionCode=" + exceptionCode + ", exceptionDescription=" + exceptionDescription
+				+ ", ingestEventUuid=" + ingestEventUuid + ", transactionEventUuid=" + transactionEventUuid
+				+ ", ingestionTimestamp=" + ingestionTimestamp + "]";
+	}
+
+	
+	
+}
