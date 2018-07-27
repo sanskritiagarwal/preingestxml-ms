@@ -19,6 +19,8 @@ package com.msvc.sns.message;
 import java.util.List;
 import java.util.Map;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
+
 /**
  * 
  * serialized object that supposed to send to topic
@@ -37,37 +39,27 @@ public class MessageEvent {
 	private Long objectSize;
 	private String eventType;
 	private String template;
+	private Map<String, String> transaction;
 	private List<Map<String, String>> transactionList;
-	private Map <String, String> transaction;
+	@DynamoDBIgnore
 	private String exceptionCode;
 	private String exceptionDescription;
 	private String ingestEventUuid;
 	private String transactionEventUuid;
-	private Long ingestionTimestamp;
-	
-	public String getIngestEventUuid() {
-		return ingestEventUuid;
-	}
+	private String ingestionTimestamp;
 
-	public void setIngestEventUuid(String ingestEventUuid) {
-		this.ingestEventUuid = ingestEventUuid;
-	}
-
-	public Long getIngestionTimestamp() {
-		return ingestionTimestamp;
-	}
-
-	public void setIngestionTimestamp(Long ingestionTimestamp) {
-		this.ingestionTimestamp = ingestionTimestamp;
-	}
-
-
+	/**
+	 * @return the transection
+	 */
 	public Map<String, String> getTransaction() {
 		return transaction;
 	}
 
-	public void setTransaction(Map<String, String> transaction) {
-		this.transaction = transaction;
+	/**
+	 * @param transection the transection to set
+	 */
+	public void setTransaction(Map<String, String> transection) {
+		this.transaction = transection;
 	}
 
 	/**
@@ -190,49 +182,84 @@ public class MessageEvent {
 	}
 
 	
-	
-	public String getExceptionCode() {
-		return exceptionCode;
-	}
-
-	public void setExceptionCode(String exceptionCode) {
-		this.exceptionCode = exceptionCode;
-	}
-
-	public String getExceptionDescription() {
-		return exceptionDescription;
-	}
-
-	public void setExceptionDescription(String exceptionDescription) {
-		this.exceptionDescription = exceptionDescription;
-	}
-
-	public List<Map<String, String>> getTransactionList() {
-		return transactionList;
-	}
-
+	/**
+	 * @param transactionList the transactionList to set
+	 */
 	public void setTransactionList(List<Map<String, String>> transactionList) {
 		this.transactionList = transactionList;
 	}
 
+	public List<Map<String, String>> getTransactionList() {
+		return this.transactionList;
+	}
+
+	/**
+	 * @return the exceptionCode
+	 */
+	public String getExceptionCode() {
+		return exceptionCode;
+	}
+
+	/**
+	 * @param exceptionCode the exceptionCode to set
+	 */
+	public void setExceptionCode(String exceptionCode) {
+		this.exceptionCode = exceptionCode;
+	}
+
+	/**
+	 * @return the exceptionDescription
+	 */
+	public String getExceptionDescription() {
+		return exceptionDescription;
+	}
+
+	/**
+	 * @param exceptionDescription the exceptionDescription to set
+	 */
+	public void setExceptionDescription(String exceptionDescription) {
+		this.exceptionDescription = exceptionDescription;
+	}
+
+	/**
+	 * @return the ingestEventUuid
+	 */
+	public String getIngestEventUuid() {
+		return ingestEventUuid;
+	}
+
+	/**
+	 * @param ingestEventUuid the ingestEventUuid to set
+	 */
+	public void setIngestEventUuid(String ingestEventUuid) {
+		this.ingestEventUuid = ingestEventUuid;
+	}
+
+	/**
+	 * @return the transactionEventUuid
+	 */
 	public String getTransactionEventUuid() {
 		return transactionEventUuid;
 	}
 
+	/**
+	 * @param transactionEventUuid the transactionEventUuid to set
+	 */
 	public void setTransactionEventUuid(String transactionEventUuid) {
 		this.transactionEventUuid = transactionEventUuid;
 	}
 
-	@Override
-	public String toString() {
-		return "MessageEvent [bucketName=" + bucketName + ", bucketKey=" + bucketKey + ", eventMessage=" + eventMessage
-				+ ", checksum=" + checksum + ", noOfLines=" + noOfLines + ", objectSize=" + objectSize + ", eventType="
-				+ eventType + ", template=" + template + ", transactionList=" + transactionList + ", transaction="
-				+ transaction + ", exceptionCode=" + exceptionCode + ", exceptionDescription=" + exceptionDescription
-				+ ", ingestEventUuid=" + ingestEventUuid + ", transactionEventUuid=" + transactionEventUuid
-				+ ", ingestionTimestamp=" + ingestionTimestamp + "]";
+	/**
+	 * @return the ingestionTimestamp
+	 */
+	public String getIngestionTimestamp() {
+		return ingestionTimestamp;
 	}
 
-	
-	
+	/**
+	 * @param ingestionTimestamp the ingestionTimestamp to set
+	 */
+	public void setIngestionTimestamp(String ingestionTimestamp) {
+		this.ingestionTimestamp = ingestionTimestamp;
+	}
 }

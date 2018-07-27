@@ -146,7 +146,7 @@ public class PreIngestXmlUtil {
 	{
 		JSONObject jsonObject = XML.toJSONObject(xml);
 
-	
+	/*
 		InputStream inputStream = null;
 		
 		            BufferedReader bufferedReader = null;
@@ -168,7 +168,7 @@ public class PreIngestXmlUtil {
 						e.printStackTrace();
 					}
 
-		            jsonObject = XML.toJSONObject(responseStrBuilder.toString());
+		            jsonObject = XML.toJSONObject(responseStrBuilder.toString());*/
 		       
 		return jsonObject.toString();
 	}
