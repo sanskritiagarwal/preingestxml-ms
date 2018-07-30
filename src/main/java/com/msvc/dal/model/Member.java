@@ -1135,7 +1135,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
+@XmlType(name = "Member", propOrder = {
     "content"
 })
 @XmlRootElement(name = "Member")
@@ -2285,7 +2285,7 @@ public class Member
      * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
+    @XmlType(name = "EmployeeRecordsList", propOrder = {
         "content"
     })
     public static class EmployeeRecordsList
@@ -3418,7 +3418,7 @@ public class Member
          * 
          */
         @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {
+        @XmlType(name = "EmployeeRecord", propOrder = {
             "content"
         })
         public static class EmployeeRecord
