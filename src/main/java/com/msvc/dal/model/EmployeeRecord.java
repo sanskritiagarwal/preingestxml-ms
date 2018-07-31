@@ -1,15 +1,23 @@
 package com.msvc.dal.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class EmployeeRecord {
+@XmlType(name="EmployeeRecord")
+@XmlRootElement(name="EmployeeRecord")
+public class EmployeeRecord  implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String Conversionid;
 	private String BlkOfBusID;
 	private String ClientID;

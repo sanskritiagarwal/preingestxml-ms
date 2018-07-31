@@ -1,5 +1,6 @@
 package com.msvc.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import javax.xml.validation.Validator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
+import org.joda.time.Instant;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,23 +51,57 @@ import com.msvc.dal.model.EmployeeRecord;
 
 public class XsdValidationUtil 
 {
-	static Long starttime = null;
-	static Long endtime = null;
+	static Instant starttime = null;
+	static Instant endtime = null;
 
 	public static void main(String args[]) throws IOException 
 	{
+		
 		File xmlFile = new File("E:\\NewWorkspace\\preingestxml-ms\\src\\main\\resources\\SIEMember1.xml");
 		
 		File xsdFile = null;
 
 		//String xsd = FileUtils.readFileToString(xsdFile);
-		starttime = System.currentTimeMillis();
+		
+		starttime = Instant.now();
+		
+		
 		String xml = FileUtils.readFileToString(xmlFile);
 		InputStream in = IOUtils.toInputStream(xml, "UTF-8");
-		getXmlDataUsingSTAX(in);
+		
+		//VALIDATION TASK
+		
+		/*if (validateInputStreamFromXSD(getXSDString(), in)) {
+			System.out.println(" 1XML is valid against xsd");
+			
+			//in.reset();
+			in.close();
+			
+			InputStream in2 = IOUtils.toBufferedInputStream(in);
+			
+			
+			try {
+				List<EmployeeRecord> empRec = UnMarshallXmlUtil.getXmlDataUsingSTAX(in2);
+			} catch (JAXBException | XMLStreamException | TransformerFactoryConfigurationError | TransformerException e) {
+				e.printStackTrace();
+			}
+			
+			
+		} else {
+			System.out.println(" 2XML is not valid against xsd");
+		}
 		
 		
-		List<EmployeeRecord> batchtransactionList = new ArrayList<EmployeeRecord>(); 
+		endtime = Instant.now();
+		Double secondsPassed = (double) (endtime.getMillis()-starttime.getMillis())/1000;
+		System.out.println("Total time in Validation + Parsing=> "+secondsPassed+" seconds");
+		
+		
+		
+		*/
+		
+		
+		/*List<EmployeeRecord> batchtransactionList = new ArrayList<EmployeeRecord>(); 
 		List<EmployeeRecord> listOfMap;
 		try 
 		{
@@ -83,7 +119,7 @@ public class XsdValidationUtil
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		*/
 		
 		/*if (validateInputStreamFromXSD(getXSDString(), in)) {
 			System.out.println(" 1XML is valid against xsd");
@@ -147,12 +183,12 @@ public class XsdValidationUtil
 
 	}
 
-	public static boolean validateInputStreamFromXSD(String xsdStr, InputStream xmlPath) {
-		try {
+	public static boolean validateInputStreamFromXSD(String xsdStr, byte[] xmlBytes) {
+		try(ByteArrayInputStream xmlIs = new ByteArrayInputStream(xmlBytes)) {
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			Schema schema = factory.newSchema(new StreamSource(new StringReader(xsdStr)));
 			Validator validator = schema.newValidator();
-			validator.validate(new StreamSource(xmlPath));
+			validator.validate(new StreamSource(xmlIs));
 		} catch (IOException e) {
 			System.out.println("Exception: " + e.getMessage());
 			return false;
@@ -181,7 +217,7 @@ public class XsdValidationUtil
 
 			// Printing the list of employees obtained from XML
 			for (EmployeeRecord emp : handler.empList) {
-				System.out.println(emp);
+				System.out.println("%%%"+emp);
 			}
 			
 			

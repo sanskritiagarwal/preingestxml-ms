@@ -18,6 +18,7 @@ package com.msvc.handler;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,12 +42,14 @@ import com.msvc.dal.dao.PreIngestXmlDao;
 import com.msvc.dal.dao.PreIngestXmlDaoImpl;
 import com.msvc.dal.model.Attributes;
 import com.msvc.dal.model.Data;
+import com.msvc.dal.model.EmployeeRecord;
 import com.msvc.dal.model.IngestXactionEvent;
 import com.msvc.dal.model.IngestionEvent;
 import com.msvc.dal.model.IngestionTemplate;
 import com.msvc.exception.PreIngestXmlException;
 import com.msvc.sns.message.MessageEvent;
 import com.msvc.sns.message.SNSMessage;
+import com.msvc.util.UnMarshallXmlUtil;
 import com.msvc.util.XsdValidationUtil;
 import com.msvc.vo.Constant;
 
@@ -64,6 +67,8 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 	private AmazonS3 s3 = AmazonS3ClientBuilder.standard().build();
 
 	private PreIngestXmlDao preIngestXmlDao = new PreIngestXmlDaoImpl();
+	
+	List<EmployeeRecord> transactionList = new ArrayList<EmployeeRecord>();
 
 	/**
 	 * process s3 event
@@ -82,8 +87,8 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 		context.getLogger().log("bucket name:" + bucketName);
 
-		Long starttime = null;
-		Long endtime = null;
+		Instant starttime = null;
+		Instant endtime = null;
 
 		try {
 
@@ -91,26 +96,10 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 			MessageEvent messageEvent = this.getMessageEvent(bucketName, bucketKey);
 
-			starttime = System.currentTimeMillis();
-			List<String> bytes = IOUtils.readLines(response.getObjectContent());
-			endtime = System.currentTimeMillis();
+			byte[] bytes = IOUtils.toByteArray(response.getObjectContent());
 
-			starttime = System.currentTimeMillis();
-			LineIterator li = IOUtils.lineIterator(response.getObjectContent(), "UTF-8");
-			endtime = System.currentTimeMillis();
-
-			InputStream xmlInputStream= IOUtils.toBufferedInputStream(response.getObjectContent());
 			
-			try {
-				while (li.hasNext()) {
-					String line = li.nextLine();
-					// do something with line
-				}
-			} finally {
-				li.close();
-			}
-
-			context.getLogger().log("Time taken in xml reading from S3 bucket:" + (endtime - starttime));
+			//context.getLogger().log("Time taken in xml reading from S3 bucket:" + (endtime - starttime));
 
 			IngestionTemplate template = preIngestXmlDao.loadTemplate(bucketName);
 
@@ -118,45 +107,56 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 			String xsdString = attrs.get(0).getFieldName();
 
-			// String xsdString = XsdValidationUtil.getXSDString();
 			context.getLogger().log("xsdString: " + xsdString);
 
 			int extractedTransactionCount = 0;
 
 			context.getLogger().log("publish event type INGEST_OBJECT_EVENT");
 
-			StringBuffer xmlFile = new StringBuffer("");
-
-			List<Map<String, String>> transactionList = new ArrayList<Map<String, String>>();
-
-			for (String s : bytes)
-				xmlFile.append(s);
-
 			int chunkSize = Constant.MIN_TRANSACTION_CHUNK_SIZE;
 
 			// boolean isValidChecksum = validateChecksum(messageEvent, context);
 			boolean isValidChecksum = true;
 
-			context.getLogger().log("isValidChecksum::" + isValidChecksum);
-
 			if (isValidChecksum) {
+				
 				context.getLogger().log(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
 
 				publishIngestObjectEvent(messageEvent);
+				
+				starttime=Instant.now();
 
-				context.getLogger().log("XML STRING: " + xmlFile.toString());
+				//XML VALIDATE FROM INPUTSTREAM
 
-				// XSD XML Validation
-				if (XsdValidationUtil.validateXMLSchema(xsdString, xmlFile.toString())) {
+				if (XsdValidationUtil.validateInputStreamFromXSD(xsdString, bytes)) 
+				{
 					context.getLogger().log(Constant.XML_VALID_SUCESS_MESSAGE);
-
-					transactionList = XsdValidationUtil.getXmlData(xmlFile.toString(), chunkSize);
-
-					context.getLogger().log("Transaction saved:" + transactionList.size());
-
-					messageEvent.setTransactionList(transactionList);
+					
+					ByteArrayInputStream xmlIs = new ByteArrayInputStream(bytes);
+					
+					Map<String, Object> xmlMap = UnMarshallXmlUtil.getXmlDataUsingSTAX(xmlIs);
+					
+					//transactionList = UnMarshallXmlUtil.getXmlDataUsingSTAX(xml2);
+					
 					extractedTransactionCount = transactionList.size();
+					
+					context.getLogger().log("Transaction saved:" + extractedTransactionCount);
+
+					//Map<String,String> transactionMap = convertJSONtoMAP(xmlJson);
+					
+					messageEvent.setTransaction(xmlMap);
+					//messageEvent.setEmptransactionList(transactionList);
+					
+					
+				} else {
+					context.getLogger().log(" XML is not valid against xsd");
 				}
+				
+				endtime=Instant.now();
+				
+			    Double secondsPassed = (double) (endtime.getEpochSecond()-starttime.getEpochSecond());
+				
+				context.getLogger().log("[ALERT] Total time taken in XML Validation + Parsing : "+ secondsPassed); 
 
 				// TODO: convertXmltoJSON
 
@@ -164,13 +164,13 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 				IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
 
-				List<Map<String, String>> batchtransactionList = new ArrayList<Map<String, String>>();
+				List<EmployeeRecord> batchtransactionList = new ArrayList<EmployeeRecord>();
 
 				messageEvent.setExceptionCode("0");
 
 				int i = 0;
 
-				Iterator<Map<String, String>> itr = transactionList.iterator();
+				Iterator<EmployeeRecord> itr = transactionList.iterator();
 				while (itr.hasNext()) {
 					batchtransactionList.add(itr.next());
 					i++;
@@ -180,9 +180,7 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 						context.getLogger().log("chunk size complete");
 
-						messageEvent.setTransaction(batchtransactionList.get(0));
-
-						messageEvent.setTransactionList(batchtransactionList);
+						messageEvent.setEmptransactionList(batchtransactionList);
 
 						int noOfRecords = batchtransactionList.size();
 
@@ -217,6 +215,17 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 			throw new PreIngestXmlException(Constant.OBJECT_PROCESS_ERROR_MESSAGE);
 		}
+		finally
+		{
+			
+			
+		}
+	}
+
+	private Map<String, String> convertJSONtoMAP(String xmlJson) 
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**

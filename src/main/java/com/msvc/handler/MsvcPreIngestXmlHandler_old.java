@@ -57,15 +57,13 @@ import com.msvc.vo.Constant;
  * @author anand.jha
  *
  */
-public class MsvcPreIngestXmlHandler2 implements RequestHandler<S3Event, String> {
+public class MsvcPreIngestXmlHandler_old implements RequestHandler<S3Event, String> {
 
 	private static final boolean IS_TRANSACTION_VALIDATION_REQUIRED = false;
 
 	private AmazonS3 s3 = AmazonS3ClientBuilder.standard().build();
 
 	private PreIngestXmlDao preIngestXmlDao = new PreIngestXmlDaoImpl();
-	
-	List<Map<String, String>> transactionList = new ArrayList<Map<String, String>>();
 
 	/**
 	 * process s3 event
@@ -93,9 +91,26 @@ public class MsvcPreIngestXmlHandler2 implements RequestHandler<S3Event, String>
 
 			MessageEvent messageEvent = this.getMessageEvent(bucketName, bucketKey);
 
+			starttime = System.currentTimeMillis();
+			List<String> bytes = IOUtils.readLines(response.getObjectContent());
+			endtime = System.currentTimeMillis();
+
+			starttime = System.currentTimeMillis();
+			LineIterator li = IOUtils.lineIterator(response.getObjectContent(), "UTF-8");
+			endtime = System.currentTimeMillis();
+
 			InputStream xmlInputStream= IOUtils.toBufferedInputStream(response.getObjectContent());
 			
-			//context.getLogger().log("Time taken in xml reading from S3 bucket:" + (endtime - starttime));
+			try {
+				while (li.hasNext()) {
+					String line = li.nextLine();
+					// do something with line
+				}
+			} finally {
+				li.close();
+			}
+
+			context.getLogger().log("Time taken in xml reading from S3 bucket:" + (endtime - starttime));
 
 			IngestionTemplate template = preIngestXmlDao.loadTemplate(bucketName);
 
@@ -103,39 +118,44 @@ public class MsvcPreIngestXmlHandler2 implements RequestHandler<S3Event, String>
 
 			String xsdString = attrs.get(0).getFieldName();
 
+			// String xsdString = XsdValidationUtil.getXSDString();
 			context.getLogger().log("xsdString: " + xsdString);
 
 			int extractedTransactionCount = 0;
 
 			context.getLogger().log("publish event type INGEST_OBJECT_EVENT");
 
+			StringBuffer xmlFile = new StringBuffer("");
+
+			List<Map<String, String>> transactionList = new ArrayList<Map<String, String>>();
+
+			for (String s : bytes)
+				xmlFile.append(s);
+
 			int chunkSize = Constant.MIN_TRANSACTION_CHUNK_SIZE;
 
 			// boolean isValidChecksum = validateChecksum(messageEvent, context);
 			boolean isValidChecksum = true;
 
+			context.getLogger().log("isValidChecksum::" + isValidChecksum);
+
 			if (isValidChecksum) {
-				
 				context.getLogger().log(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
 
 				publishIngestObjectEvent(messageEvent);
 
-				//XML VALIDATE FROM INPUTSTREAM
+				context.getLogger().log("XML STRING: " + xmlFile.toString());
 
-				if (XsdValidationUtil.validateInputStreamFromXSD(xsdString, xmlInputStream)) 
-				{
+				// XSD XML Validation
+				if (XsdValidationUtil.validateXMLSchema(xsdString, xmlFile.toString())) {
 					context.getLogger().log(Constant.XML_VALID_SUCESS_MESSAGE);
 
-					transactionList = XsdValidationUtil.getXmlDataUsingSTAX(xmlInputStream);
-					
-					extractedTransactionCount = transactionList.size();
-					context.getLogger().log("Transaction saved:" + extractedTransactionCount);
+					transactionList = XsdValidationUtil.getXmlData(xmlFile.toString(), chunkSize);
+
+					context.getLogger().log("Transaction saved:" + transactionList.size());
 
 					messageEvent.setTransactionList(transactionList);
-					
-					
-				} else {
-					context.getLogger().log(" XML is not valid against xsd");
+					extractedTransactionCount = transactionList.size();
 				}
 
 				// TODO: convertXmltoJSON

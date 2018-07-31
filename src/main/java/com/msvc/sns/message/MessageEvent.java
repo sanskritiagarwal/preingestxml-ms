@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
+import com.msvc.dal.model.EmployeeRecord;
 
 /**
  * 
@@ -39,8 +40,10 @@ public class MessageEvent {
 	private Long objectSize;
 	private String eventType;
 	private String template;
-	private Map<String, String> transaction;
+	private Map<String, Object> transaction;
 	private List<Map<String, String>> transactionList;
+	private List<EmployeeRecord> emptransactionList;
+	
 	@DynamoDBIgnore
 	private String exceptionCode;
 	private String exceptionDescription;
@@ -51,15 +54,15 @@ public class MessageEvent {
 	/**
 	 * @return the transection
 	 */
-	public Map<String, String> getTransaction() {
+	public Map<String, Object> getTransaction() {
 		return transaction;
 	}
 
 	/**
-	 * @param transection the transection to set
+	 * @param xmlMap the transection to set
 	 */
-	public void setTransaction(Map<String, String> transection) {
-		this.transaction = transection;
+	public void setTransaction(Map<String, Object> xmlMap) {
+		this.transaction = xmlMap;
 	}
 
 	/**
@@ -262,4 +265,13 @@ public class MessageEvent {
 	public void setIngestionTimestamp(String ingestionTimestamp) {
 		this.ingestionTimestamp = ingestionTimestamp;
 	}
+
+	public List<EmployeeRecord> getEmptransactionList() {
+		return emptransactionList;
+	}
+
+	public void setEmptransactionList(List<EmployeeRecord> emptransactionList) {
+		this.emptransactionList = emptransactionList;
+	}
+	
 }

@@ -46,20 +46,15 @@ class SAXHandler extends DefaultHandler {
 	// Triggered when the start of tag is found.
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-		
+		System.out.println("uri "+uri);
 		System.out.println(qName);
 		switch (qName) {
 		// Create a new Employee object when the start tag is found
 		case "EmployeeRecord":
-			System.out.println(attributes);
-			System.out.println(uri);
 			
 			emp = new EmployeeRecord();
 			
-			for(int i=0;i<attributes.getLength();i++)
-			{
-				System.out.println(attributes.getValue(i));
-			}
+			
 			break;
 		}
 	}
