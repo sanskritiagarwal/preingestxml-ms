@@ -19,6 +19,8 @@ package com.msvc.sns.message;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 
 /**
@@ -40,7 +42,8 @@ public class MessageEvent {
 	private String eventType;
 	private String template;
 	private Map<String, Object> transaction;
-	private List<Map<String, String>> transactionList;
+	private List<Map<String, Object>> transactionList;
+	private JSONArray jsonArray;
 	
 	@DynamoDBIgnore
 	private String exceptionCode;
@@ -60,7 +63,7 @@ public class MessageEvent {
 	 * @param xmlMap the transection to set
 	 */
 	public void setTransaction(Map<String, Object> xmlMap) {
-		this.transaction = xmlMap;
+		this.transaction =  xmlMap;
 	}
 
 	/**
@@ -186,11 +189,11 @@ public class MessageEvent {
 	/**
 	 * @param transactionList the transactionList to set
 	 */
-	public void setTransactionList(List<Map<String, String>> transactionList) {
+	public void setTransactionList(List<Map<String, Object>> transactionList) {
 		this.transactionList = transactionList;
 	}
 
-	public List<Map<String, String>> getTransactionList() {
+	public List<Map<String, Object>> getTransactionList() {
 		return this.transactionList;
 	}
 
@@ -262,6 +265,21 @@ public class MessageEvent {
 	 */
 	public void setIngestionTimestamp(String ingestionTimestamp) {
 		this.ingestionTimestamp = ingestionTimestamp;
+	}
+
+	
+	/**
+	 * @return the jsonArray
+	 */
+	public JSONArray getJsonArray() {
+		return jsonArray;
+	}
+
+	/**
+	 * @param jsonArray the jsonArray to set
+	 */
+	public void setJsonArray(JSONArray jsonArray) {
+		this.jsonArray = jsonArray;
 	}
 
 	

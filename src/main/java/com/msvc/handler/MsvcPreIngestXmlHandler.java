@@ -16,9 +16,11 @@
 
 package com.msvc.handler;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
+import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,10 +28,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Scanner;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -49,7 +53,6 @@ import com.msvc.dal.model.IngestionTemplate;
 import com.msvc.exception.PreIngestXmlException;
 import com.msvc.sns.message.MessageEvent;
 import com.msvc.sns.message.SNSMessage;
-import com.msvc.util.UnMarshallXmlUtil;
 import com.msvc.util.XsdValidationUtil;
 import com.msvc.vo.Constant;
 
@@ -67,8 +70,10 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 	private AmazonS3 s3 = AmazonS3ClientBuilder.standard().build();
 
 	private PreIngestXmlDao preIngestXmlDao = new PreIngestXmlDaoImpl();
-	
+
 	List<EmployeeRecord> transactionList = new ArrayList<EmployeeRecord>();
+	
+	private static final int chunkSize = Constant.MIN_TRANSACTION_CHUNK_SIZE;
 
 	/**
 	 * process s3 event
@@ -90,6 +95,8 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 		Instant starttime = null;
 		Instant endtime = null;
 
+		List<Map<String, Object>> xmlMap = null;
+
 		try {
 
 			S3Object response = s3.getObject(new GetObjectRequest(bucketName, bucketKey));
@@ -98,8 +105,8 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 			byte[] bytes = IOUtils.toByteArray(response.getObjectContent());
 
-			
-			//context.getLogger().log("Time taken in xml reading from S3 bucket:" + (endtime - starttime));
+			// context.getLogger().log("Time taken in xml reading from S3 bucket:" +
+			// (endtime - starttime));
 
 			IngestionTemplate template = preIngestXmlDao.loadTemplate(bucketName);
 
@@ -113,97 +120,56 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 
 			context.getLogger().log("publish event type INGEST_OBJECT_EVENT");
 
-			int chunkSize = Constant.MIN_TRANSACTION_CHUNK_SIZE;
+			
 
 			// boolean isValidChecksum = validateChecksum(messageEvent, context);
 			boolean isValidChecksum = true;
 
 			if (isValidChecksum) {
-				
+
 				context.getLogger().log(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
 
 				publishIngestObjectEvent(messageEvent);
+
+				starttime = Instant.now();
 				
-				starttime=Instant.now();
+				IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
 
-				//XML VALIDATE FROM INPUTSTREAM
 
-				if (XsdValidationUtil.validateInputStreamFromXSD(xsdString, bytes)) 
-				{
+				// XML VALIDATE FROM INPUTSTREAM
+
+				if (XsdValidationUtil.validateInputStreamFromXSD(xsdString, bytes)) {
 					context.getLogger().log(Constant.XML_VALID_SUCESS_MESSAGE);
-					
-					ByteArrayInputStream xmlIs = new ByteArrayInputStream(bytes);
-					
-					Map<String, Object> xmlMap = UnMarshallXmlUtil.getXmlDataUsingSTAX(xmlIs);
-					
-					//transactionList = UnMarshallXmlUtil.getXmlDataUsingSTAX(xml2);
-					
-					extractedTransactionCount = transactionList.size();
-					
-					context.getLogger().log("Transaction saved:" + extractedTransactionCount);
 
-					//Map<String,String> transactionMap = convertJSONtoMAP(xmlJson);
+					ByteArrayInputStream xmlIs = new ByteArrayInputStream(bytes);
+
+					//xmlMap = UnMarshallXmlUtil.getXmlDataUsingSTAX(xmlIs);
+					//xmlMap = UnMarshallXmlUtil.getXmlDataAsList(xmlIs);
+
+					xmlMap = getListfromJSON(xmlIs,messageEvent,ingestionEvent);
 					
-					messageEvent.setTransaction(xmlMap);
-					//messageEvent.setEmptransactionList(transactionList);
-					
-					
+					//extractedTransactionCount = xmlMap.size();
+
+					//context.getLogger().log("Transaction saved:" + extractedTransactionCount);
+
+					//messageEvent.setTransaction(xmlMap.get(0));
+
 				} else {
 					context.getLogger().log(" XML is not valid against xsd");
 				}
-				
-				endtime=Instant.now();
-				
-			    Double secondsPassed = (double) (endtime.getEpochSecond()-starttime.getEpochSecond());
-				
-				context.getLogger().log("[ALERT] Total time taken in XML Validation + Parsing : "+ secondsPassed); 
+
+				endtime = Instant.now();
+
+				Double secondsPassed = (double) (endtime.toEpochMilli() - starttime.toEpochMilli())/1000;
+
+				context.getLogger().log("[ALERT] Total time taken in XML Validation + Parsing : " + secondsPassed);
 
 				// TODO: convertXmltoJSON
 
-				messageEvent.setNoOfLines(transactionList.size());
+				//messageEvent.setNoOfLines(xmlMap.size());
 
-				IngestionEvent ingestionEvent = saveIngestObjectEventData(messageEvent);
-
-				List<EmployeeRecord> batchtransactionList = new ArrayList<EmployeeRecord>();
-
-				messageEvent.setExceptionCode("0");
-
-				int i = 0;
-
-				Iterator<EmployeeRecord> itr = transactionList.iterator();
-				while (itr.hasNext()) {
-					batchtransactionList.add(itr.next());
-					i++;
-					context.getLogger().log("Batch Size " + i);
-
-					if (i == chunkSize) {
-
-						context.getLogger().log("chunk size complete");
-
-						messageEvent.setEmptransactionList(batchtransactionList);
-
-						int noOfRecords = batchtransactionList.size();
-
-						// Get transactionEventUuid which will be use to update transactionEvent data
-						// later
-						String transactionEventUuid = saveTransactionEvent(messageEvent, ingestionEvent, noOfRecords);
-
-						messageEvent.setTransactionEventUuid(transactionEventUuid);
-
-						context.getLogger().log("[Sanskriti] Before publish TransactionEventUuid:"
-								+ messageEvent.getTransactionEventUuid());
-
-						messageEvent.setEventMessage(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
-
-						// publish TranactionEvent to Topic
-						publishIngestTransactionEvent(messageEvent, ingestionEvent);
-
-						i = 0;
-						batchtransactionList.clear();
-
-					}
-
-				}
+				
+				
 			}
 
 			context.getLogger().log("[Sanskriti] after publish::" + messageEvent.getEventMessage());
@@ -214,16 +180,104 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 			e.printStackTrace();
 
 			throw new PreIngestXmlException(Constant.OBJECT_PROCESS_ERROR_MESSAGE);
-		}
-		finally
-		{
-			
-			
+		} finally {
+
 		}
 	}
 
-	private Map<String, String> convertJSONtoMAP(String xmlJson) 
+	private  String getStringFromInputStream(InputStream is) {
+
+		BufferedReader br = null;
+		StringBuilder sb = new StringBuilder();
+
+		String line;
+		try {
+
+			br = new BufferedReader(new InputStreamReader(is));
+			while ((line = br.readLine()) != null) {
+				sb.append(line);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return sb.toString();
+
+	}
+	private List<Map<String, Object>> getListfromJSON(InputStream xmlFile, MessageEvent messageEvent, IngestionEvent ingestionEvent)
 	{
+		List<EmployeeRecord> list = new ArrayList<EmployeeRecord>();
+		List<Map<String, Object>> listOfMaps = new ArrayList<Map<String, Object>>();
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		 ArrayList<JSONObject> myArrayList = new ArrayList<JSONObject>();
+         
+		
+		 try {
+			 
+	            JSONObject xmlJSONObj = XML.toJSONObject(getStringFromInputStream(xmlFile));
+	            
+	            System.out.println("xmlJSONObj ="+ xmlJSONObj);
+	            
+	            JSONObject jsonObj = xmlJSONObj.getJSONObject("Member").getJSONObject("EmployeeRecordsList");
+	            
+	            Iterator<String> keys = jsonObj.keys();
+	            
+	            int i=0;
+	            
+	            while(keys.hasNext())
+	            {
+	                String key = (String)keys.next();
+	                if ( jsonObj.get(key) instanceof JSONObject )
+	                {
+	                    JSONObject employeeRec = new JSONObject(jsonObj.get(key).toString());
+	                    myArrayList.add(employeeRec);
+	                    System.out.println("AlternateID1=>"+employeeRec.get("AlternateID1"));
+	                    
+	                    if (chunkSize == myArrayList.size()) 
+						{
+							JSONArray transaction = new JSONArray(myArrayList);
+							
+							int noOfRecords = myArrayList.size();
+							
+							messageEvent.setJsonArray(transaction);
+
+							// Get transactionEventUuid which will be use to update transactionEvent data
+							// TODO: later
+							String transactionEventUuid = this.saveTransactionEvent(messageEvent, ingestionEvent, noOfRecords);
+
+							messageEvent.setTransactionEventUuid(transactionEventUuid);
+							
+							messageEvent.setEventMessage(Constant.OBJECT_PROCESS_SUCESS_MESSAGE);
+
+							// publish TranactionEvent to Topic
+							publishIngestTransactionEvent(messageEvent, ingestionEvent);
+
+							i = 0;
+							myArrayList.clear();
+						}
+	                }
+	            }
+
+		 } catch (JSONException je) {
+	        	
+	           je.printStackTrace();
+	        }
+		return null;
+		
+	}
+	
+	
+	
+	private Map<String, String> convertJSONtoMAP(String xmlJson) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -335,7 +389,7 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 	 * @param transactionMap
 	 */
 	private void setExtractedTransactionData(MessageEvent messageEvent, IngestionTemplate template, String transaction,
-			List<Map<String, String>> transactionList, Map<String, String> transactionMap) {
+			List<Map<String, Object>> transactionList, Map<String, Object> transactionMap) {
 		System.out.println("Start setExtractedTransactionData ");
 		for (Attributes attr : template.getAttributes()) {
 
@@ -367,7 +421,7 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 	 * @param messageEvent
 	 * @param ingEvent
 	 */
-	private void publishIngestTransactionEvent(MessageEvent messageEvent, IngestionEvent ingEvent) {
+	public void publishIngestTransactionEvent(MessageEvent messageEvent, IngestionEvent ingEvent) {
 		messageEvent.setEventType(Constant.EventType.INGEST_XACTION_EVENT.getEvent());
 		messageEvent.setIngestEventUuid(ingEvent.getEventUuid());
 		messageEvent.setIngestionTimestamp(String.valueOf(ingEvent.getIngestionTimestamp()));
@@ -384,11 +438,11 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 	private String saveTransactionEvent(MessageEvent messageEvent, IngestionEvent ingEvent, int noOfRecords) {
 		System.out.println("Start saveTransactionEvent");
 
-		final IngestXactionEvent transactionEvent = setIngestTransactionData(messageEvent, ingEvent, noOfRecords);
-
+		//final IngestXactionEvent transactionEvent = setIngestTransactionData(messageEvent, ingEvent, noOfRecords);
+		IngestXactionEvent transactionEvent =new IngestXactionEvent();
 		System.out.println("prepare transactionEvent to insert into db:" + transactionEvent);
 
-		preIngestXmlDao.persistTransactionData(transactionEvent);
+		// preIngestXmlDao.persistTransactionData(transactionEvent);
 
 		System.out.println("End saveTransactionEvent");
 		return transactionEvent.getEventUuid();
@@ -407,15 +461,17 @@ public class MsvcPreIngestXmlHandler implements RequestHandler<S3Event, String> 
 		transactionEvent.setIngestObjectEventUuid(ingEvent.getEventUuid());
 		transactionEvent.setTemplateName(messageEvent.getTemplate());
 
-		List<Map<String, String>> transactionList = messageEvent.getTransactionList();
-		List<Data> transactionDatList = new ArrayList<>();
+		//List<Map<String, Object>> transactionList = messageEvent.getTransactionList();
+		
+		
+		List<Data> transactionDatList = new ArrayList<Data>();
 
-		for (Map<String, String> transactionData : transactionList) {
+		/*for (Map<String, Object> transactionData : transactionList) {
 			Data data = new Data();
 			data.setTransactiondata(transactionData);
 			transactionDatList.add(data);
 		}
-
+*/
 		transactionEvent.setRecord(transactionDatList);
 		transactionEvent.setNbrRecords(noOfRecords);
 		return transactionEvent;
